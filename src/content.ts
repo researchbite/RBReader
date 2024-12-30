@@ -4,11 +4,19 @@ import { Readability } from '@mozilla/readability';
 interface ReaderState {
   isOpen: boolean;
   originalBody: string;
+  startTime: number | null;
+  timerInterval: number | null;
+  totalElapsedTime: number;
+  lastPauseTime: number | null;
 }
 
 const state: ReaderState = {
   isOpen: false,
   originalBody: '',
+  startTime: null,
+  timerInterval: null,
+  totalElapsedTime: 0,
+  lastPauseTime: null,
 };
 
 function createReaderOverlay(): HTMLElement {
@@ -18,10 +26,60 @@ function createReaderOverlay(): HTMLElement {
     <div class="reader-container">
       <button class="close-button">×</button>
       <div class="reader-content"></div>
+      <div class="reading-timer">Reading time: 00:00</div>
     </div>
   `;
 
   return overlay;
+}
+
+function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function startTimer(): void {
+  if (state.timerInterval) return;
+  
+  if (state.lastPauseTime) {
+    state.totalElapsedTime += Math.floor((state.lastPauseTime - (state.startTime || 0)) / 1000);
+  }
+  
+  state.startTime = Date.now();
+  state.lastPauseTime = null;
+  const timerElement = document.querySelector('.reading-timer');
+  
+  state.timerInterval = window.setInterval(() => {
+    if (!state.startTime || !timerElement) return;
+    
+    const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+    const totalSeconds = state.totalElapsedTime + currentElapsedSeconds;
+    timerElement.textContent = `Reading time: ${formatTime(totalSeconds)}`;
+  }, 1000);
+}
+
+function pauseTimer(): void {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+    state.lastPauseTime = Date.now();
+  }
+}
+
+function resetTimer(): void {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+  state.startTime = null;
+  state.lastPauseTime = null;
+  state.totalElapsedTime = 0;
+  
+  const timerElement = document.querySelector('.reading-timer');
+  if (timerElement) {
+    timerElement.textContent = 'Reading time: 00:00';
+  }
 }
 
 function applyBionicReadingToText(text: string): string {
@@ -59,6 +117,18 @@ function applyBionicReadingToHTML(element: HTMLElement): void {
   });
 }
 
+function clearReaderContent(): void {
+  const content = document.querySelector('.reader-content');
+  if (content) {
+    content.innerHTML = '';
+  }
+  
+  const timerElement = document.querySelector('.reading-timer');
+  if (timerElement) {
+    timerElement.textContent = 'Reading time: 00:00';
+  }
+}
+
 async function initializeReader(): Promise<void> {
   const overlay = createReaderOverlay();
   document.body.appendChild(overlay);
@@ -67,6 +137,7 @@ async function initializeReader(): Promise<void> {
   closeButton?.addEventListener('click', () => {
     overlay.style.display = 'none';
     state.isOpen = false;
+    pauseTimer();
   });
 }
 
@@ -81,14 +152,26 @@ async function showReader(): Promise<void> {
     const content = overlay.querySelector('.reader-content');
     if (!content) return;
 
-    // Create a temporary container for the article content
+    // Clear all content including the timer
+    content.innerHTML = '';
+    
+    // Remove any existing timer elements
+    const existingTimer = overlay.querySelector('.reading-timer');
+    if (existingTimer) {
+      existingTimer.remove();
+    }
+
+    // Create a new timer element
+    const timerElement = document.createElement('div');
+    timerElement.className = 'reading-timer';
+    timerElement.textContent = `Reading time: ${formatTime(state.totalElapsedTime)}`;
+    overlay.querySelector('.reader-container')?.appendChild(timerElement);
+
     const tempContainer = document.createElement('div');
     tempContainer.innerHTML = article.content;
 
-    // Apply bionic reading to the HTML content
     applyBionicReadingToHTML(tempContainer);
 
-    // Add title
     if (article.title) {
       const titleElement = document.createElement('h1');
       titleElement.className = 'reader-title';
@@ -96,11 +179,11 @@ async function showReader(): Promise<void> {
       content.appendChild(titleElement);
     }
 
-    // Add the processed content
     content.appendChild(tempContainer);
     
     overlay.style.display = 'flex';
     state.isOpen = true;
+    startTimer();
   } catch (error) {
     console.error('Error parsing article:', error);
   }
@@ -111,6 +194,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'toggleReader') {
     if (!state.isOpen) {
       showReader().catch(console.error);
+    } else {
+      const overlay = document.getElementById('bionic-reader-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+        state.isOpen = false;
+        pauseTimer();
+      }
     }
   }
   return false;

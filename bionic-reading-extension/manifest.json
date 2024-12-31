@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Bionic Reading",
+  "version": "1.0.0",
+  "description": "Transform web content into bionic reading format for ADHD readers",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/bionic-reading-icon-16.png",
+      "48": "icons/bionic-reading-icon-48.png",
+      "128": "icons/bionic-reading-icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/bionic-reading-icon-16.png",
+    "48": "icons/bionic-reading-icon-48.png",
+    "128": "icons/bionic-reading-icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["reader.css"]
+    }
+  ]
+} 

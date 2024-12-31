@@ -1,0 +1,1 @@
+(()=>{"use strict";chrome.action.onClicked.addListener((e=>{e.id&&(chrome.scripting.executeScript({target:{tabId:e.id},files:["content.js"]}),chrome.tabs.sendMessage(e.id,{action:"toggleReader"}))}))})();

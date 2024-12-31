@@ -8,6 +8,7 @@ interface ReaderState {
   timerInterval: number | null;
   totalElapsedTime: number;
   lastPauseTime: number | null;
+  historicalTime: number;
 }
 
 const state: ReaderState = {
@@ -17,6 +18,7 @@ const state: ReaderState = {
   timerInterval: null,
   totalElapsedTime: 0,
   lastPauseTime: null,
+  historicalTime: Number(localStorage.getItem('bionicReadingTime') || '0')
 };
 
 function createReaderOverlay(): HTMLElement {
@@ -54,8 +56,8 @@ function startTimer(): void {
     if (!state.startTime || !timerElement) return;
     
     const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
-    const totalSeconds = state.totalElapsedTime + currentElapsedSeconds;
-    timerElement.textContent = `Reading time: ${formatTime(totalSeconds)}`;
+    const totalSeconds = state.historicalTime + state.totalElapsedTime + currentElapsedSeconds;
+    timerElement.textContent = `Total reading time: ${formatTime(totalSeconds)}`;
   }, 1000);
 }
 
@@ -64,6 +66,13 @@ function pauseTimer(): void {
     clearInterval(state.timerInterval);
     state.timerInterval = null;
     state.lastPauseTime = Date.now();
+    
+    // Calculate and save the total time spent reading
+    if (state.startTime) {
+      const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+      state.historicalTime += state.totalElapsedTime + currentElapsedSeconds;
+      localStorage.setItem('bionicReadingTime', state.historicalTime.toString());
+    }
   }
 }
 
@@ -78,7 +87,7 @@ function resetTimer(): void {
   
   const timerElement = document.querySelector('.reading-timer');
   if (timerElement) {
-    timerElement.textContent = 'Reading time: 00:00';
+    timerElement.textContent = `Total reading time: ${formatTime(state.historicalTime)}`;
   }
 }
 
@@ -143,14 +152,14 @@ async function initializeReader(): Promise<void> {
 
 async function showReader(): Promise<void> {
   const overlay = document.getElementById('bionic-reader-overlay');
-  if (!overlay) return;
+  if (!overlay) return Promise.resolve();
 
   try {
     const article = new Readability(document.cloneNode(true) as Document).parse();
-    if (!article) return;
+    if (!article) return Promise.resolve();
 
     const content = overlay.querySelector('.reader-content');
-    if (!content) return;
+    if (!content) return Promise.resolve();
 
     // Clear all content including the timer
     content.innerHTML = '';
@@ -164,7 +173,7 @@ async function showReader(): Promise<void> {
     // Create a new timer element
     const timerElement = document.createElement('div');
     timerElement.className = 'reading-timer';
-    timerElement.textContent = `Reading time: ${formatTime(state.totalElapsedTime)}`;
+    timerElement.textContent = `Total reading time: ${formatTime(state.historicalTime)}`;
     overlay.querySelector('.reader-container')?.appendChild(timerElement);
 
     const tempContainer = document.createElement('div');
@@ -187,6 +196,7 @@ async function showReader(): Promise<void> {
   } catch (error) {
     console.error('Error parsing article:', error);
   }
+  return Promise.resolve();
 }
 
 // Listen for messages from the background script

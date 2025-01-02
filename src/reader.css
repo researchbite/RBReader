@@ -4,44 +4,51 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgb(226, 226, 226);
   z-index: 999999;
   display: none;
   justify-content: center;
   align-items: flex-start;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 2rem 0;
+}
+
+:root {
+  --paper-shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 .reader-container {
   position: relative;
-  max-width: 800px;
+  max-width: 680px;
   width: 100%;
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  margin: 2rem auto;
+  background: #fff;
+  padding: 2rem 3rem;
+  margin: 0 auto;
   line-height: 1.6;
-  font-family: "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, sans-serif;
-  color: #333;
-  max-height: calc(100vh - 4rem);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  color: #1d1d1f;
+  min-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
+  border-radius: 3px;
+  box-shadow: 0px 6px 12px 3px var(--paper-shadow-color);
 }
 
 .reader-content {
-  font-size: 1.2rem;
-  overflow-y: auto;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  overflow-y: visible;
   flex: 1;
-  padding-right: 1rem;
-  margin-top: 1rem;
+  padding-right: 0;
+  margin-top: 2rem;
 }
 
 .reader-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  color: #111;
+  font-size: 2.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #1d1d1f;
+  line-height: 1.2;
 }
 
 .reader-content h1,
@@ -50,19 +57,21 @@
 .reader-content h4,
 .reader-content h5,
 .reader-content h6 {
-  margin: 1.5em 0 0.5em;
+  margin: 2em 0 0.75em;
   line-height: 1.3;
-  color: #111;
+  color: #1d1d1f;
+  font-weight: 600;
 }
 
 .reader-content p {
-  margin: 1em 0;
+  margin: 1.5em 0;
 }
 
 .reader-content img {
   max-width: 100%;
   height: auto;
-  margin: 1em 0;
+  margin: 2em auto;
+  display: block;
 }
 
 .reader-content figure {
@@ -77,68 +86,97 @@
 }
 
 .close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(0, 0, 0, 0.1);
   border: none;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: #1d1d1f;
   padding: 0.5rem;
   line-height: 1;
-  border-radius: 4px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
-  z-index: 2;
 }
 
 .close-button:hover {
-  color: #333;
-  background: #f0f0f0;
+  background: rgba(0, 0, 0, 0.2);
+  color: #1d1d1f;
 }
 
 .reader-content blockquote {
-  margin: 1em 0;
-  padding-left: 1em;
-  border-left: 4px solid #ddd;
-  color: #555;
+  margin: 2em 0;
+  padding-left: 1.5em;
+  border-left: 3px solid #1d1d1f;
+  color: #424245;
+  font-style: italic;
 }
 
 .reader-content ul,
 .reader-content ol {
-  margin: 1em 0;
-  padding-left: 2em;
+  margin: 1.5em 0;
+  padding-left: 2.5em;
 }
 
 .reader-content li {
-  margin: 0.5em 0;
+  margin: 0.75em 0;
 }
 
 .reader-content a {
-  color: #2563eb;
+  color: #06c;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .reader-content a:hover {
+  color: #003d80;
   text-decoration: underline;
 }
 
 .reading-timer {
   position: fixed;
   bottom: 2rem;
-  left: 2rem;
-  background: rgba(0, 0, 0, 0.7);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-size: 0.9rem;
-  font-family: monospace;
+  font-size: 0.875rem;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   z-index: 1000000;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: opacity 0.3s ease;
 }
 
 .reading-timer:hover {
   opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  #bionic-reader-overlay {
+    padding: 0;
+  }
+
+  .reader-container {
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.5rem;
+  }
+  
+  .reader-content {
+    font-size: 1rem;
+  }
+  
+  .reader-title {
+    font-size: 1.75rem;
+  }
 } 

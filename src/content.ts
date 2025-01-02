@@ -434,7 +434,10 @@ async function showReader(): Promise<void> {
     const tempContainer = document.createElement('div');
     tempContainer.innerHTML = article.content;
 
-    applyBionicReadingToHTML(tempContainer);
+    // Only apply bionic reading if content hasn't been processed
+    if (!tempContainer.querySelector('strong')) {
+      applyBionicReadingToHTML(tempContainer);
+    }
 
     if (article.title) {
       const titleElement = document.createElement('h1');
@@ -468,6 +471,11 @@ async function showReader(): Promise<void> {
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'isAlive') {
+    sendResponse(true);
+    return true;
+  }
+  
   if (message.action === 'toggleReader') {
     if (!state.isOpen) {
       showReader().catch(console.error);

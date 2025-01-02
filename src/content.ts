@@ -225,4 +225,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Initialize the reader
-initializeReader().catch(console.error); 
+initializeReader().catch(console.error);
+
+// Add keyboard shortcut listeners
+document.addEventListener('keydown', (event: KeyboardEvent) => {
+  // Control + Shift + R to enter reading mode
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
+    event.preventDefault(); // Prevent default browser behavior
+    if (!state.isOpen) {
+      showReader().catch(console.error);
+    }
+  }
+  
+  // Escape to exit reading mode
+  if (event.key === 'Escape') {
+    if (state.isOpen) {
+      const overlay = document.getElementById('bionic-reader-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+        state.isOpen = false;
+        pauseTimer();
+      }
+    }
+  }
+}); 

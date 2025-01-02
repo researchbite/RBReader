@@ -7,4 +7,11 @@ chrome.action.onClicked.addListener((tab) => {
   });
 
   chrome.tabs.sendMessage(tab.id, { action: 'toggleReader' });
+});
+
+// Add command listener
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (command === 'toggle-reader' && tab?.id) {
+    chrome.tabs.sendMessage(tab.id, { action: 'toggleReader' });
+  }
 }); 

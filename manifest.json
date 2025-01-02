@@ -7,6 +7,15 @@
     "activeTab",
     "scripting"
   ],
+  "commands": {
+    "toggle-reader": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "Ctrl+Shift+R"
+      },
+      "description": "Toggle reader mode"
+    }
+  },
   "action": {
     "default_icon": {
       "16": "icons/bionic-reading-icon-16.png",

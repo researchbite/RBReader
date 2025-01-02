@@ -91,10 +91,18 @@ function resetTimer(): void {
   }
 }
 
+// Common words to skip bionic highlighting
+const SKIP_WORDS = new Set([
+  'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'in', 
+  'is', 'it', 'of', 'on', 'or', 'the', 'to', 'up', 'was'
+]);
+
 function applyBionicReadingToText(text: string): string {
   return text.split(' ').map(word => {
-    if (word.length <= 1) return word;
-    const midPoint = Math.ceil(word.length / 2);
+    // Skip bionic reading for common words
+    if (word.length <= 1 || SKIP_WORDS.has(word.toLowerCase())) return word;
+    
+    const midPoint = Math.min(Math.floor(word.length / 2), 3);
     const firstHalf = word.slice(0, midPoint);
     const secondHalf = word.slice(midPoint);
     return `<strong>${firstHalf}</strong>${secondHalf}`;

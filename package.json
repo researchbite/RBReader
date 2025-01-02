@@ -5,7 +5,9 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "clean": "rm -rf dist/*"
+    "clean": "rm -rf dist/* && rm -f bionic-reading-extension.zip",
+    "package": "npm run clean && npm run build && cd dist && zip -r ../bionic-reading-extension.zip *",
+    "build:prod": "NODE_ENV=production npm run package"
   },
   "dependencies": {
     "@mozilla/readability": "^0.4.4"

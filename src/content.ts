@@ -1,6 +1,12 @@
 // Import Readability from the package
 import { Readability } from '@mozilla/readability';
 
+interface HistoricalArticle {
+  url: string;
+  title: string;
+  timestamp: number;
+}
+
 interface ReaderState {
   isOpen: boolean;
   originalBody: string;
@@ -9,6 +15,9 @@ interface ReaderState {
   totalElapsedTime: number;
   lastPauseTime: number | null;
   historicalTime: number;
+  currentArticleTime: number;
+  historicalArticles: HistoricalArticle[];
+  isStatsOpen: boolean;
 }
 
 const state: ReaderState = {
@@ -18,7 +27,10 @@ const state: ReaderState = {
   timerInterval: null,
   totalElapsedTime: 0,
   lastPauseTime: null,
-  historicalTime: Number(localStorage.getItem('bionicReadingTime') || '0')
+  historicalTime: Number(localStorage.getItem('bionicReadingTime') || '0'),
+  currentArticleTime: 0,
+  historicalArticles: JSON.parse(localStorage.getItem('bionicReadingArticles') || '[]'),
+  isStatsOpen: false
 };
 
 function createReaderOverlay(): HTMLElement {
@@ -26,13 +38,245 @@ function createReaderOverlay(): HTMLElement {
   overlay.id = 'bionic-reader-overlay';
   overlay.innerHTML = `
     <div class="reader-container">
-      <button class="close-button">×</button>
+      <button id="stats-button" class="icon-button stats-button">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 3C2 2.44772 2.44772 2 3 2H17C17.5523 2 18 2.44772 18 3V17C18 17.5523 17.5523 18 17 18H3C2.44772 18 2 17.5523 2 17V3Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 6H14M6 10H14M6 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="icon-button close-button">×</button>
       <div class="reader-content"></div>
-      <div class="reading-timer">Reading time: 00:00</div>
     </div>
   `;
 
+  // Add styles for the header and buttons
+  const style = document.createElement('style');
+  style.textContent = `
+    .icon-button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #1c1c1e;
+      font-size: 20px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      position: fixed;
+    }
+    .stats-button {
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 10001;
+    }
+    .close-button {
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 10001;
+    }
+    .icon-button:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .stats-popup {
+      position: absolute;
+      left: 0;
+      top: calc(100% + 8px);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      min-width: 220px;
+      transform-origin: top left;
+      animation: popupFadeIn 0.2s ease;
+      display: none;
+    }
+    @keyframes popupFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .stats-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+    }
+    .stat-label {
+      color: #6c6c70;
+      font-size: 13px;
+    }
+    .stat-value {
+      color: #1c1c1e;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .history-item {
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      margin-top: 4px;
+      padding-top: 8px;
+    }
+    .toggle-history {
+      background: none;
+      border: 1px solid #6c6c70;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #6c6c70;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .toggle-history:hover {
+      background: #6c6c70;
+      color: white;
+    }
+    .history-list {
+      margin-top: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .history-urls {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .history-url {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      color: #1c1c1e;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .history-url:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    .history-title {
+      font-weight: 500;
+      color: #1c1c1e;
+      line-height: 1.3;
+    }
+    .history-domain {
+      color: #6c6c70;
+      font-size: 11px;
+    }
+  `;
+  document.head.appendChild(style);
+
   return overlay;
+}
+
+function createStatsPopup(): HTMLElement {
+  const popup = document.createElement('div');
+  popup.className = 'stats-popup';
+  popup.innerHTML = `
+    <div class="stats-content">
+      <div class="stat-item">
+        <span class="stat-label">Current Reading Time</span>
+        <span class="current-time stat-value">00:00</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Total Reading Time</span>
+        <span class="total-time stat-value">00:00</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Articles Read</span>
+        <span class="articles-read stat-value">0</span>
+      </div>
+      <div class="stat-item history-item">
+        <span class="stat-label">Reading History</span>
+        <button class="toggle-history">Show</button>
+      </div>
+      <div class="history-list" style="display: none;">
+        <div class="history-urls"></div>
+      </div>
+    </div>
+  `;
+
+  // Add click handler for toggle history button
+  const toggleButton = popup.querySelector('.toggle-history');
+  const historyList = popup.querySelector('.history-list');
+  const historyUrls = popup.querySelector('.history-urls');
+
+  if (toggleButton && historyList && historyUrls) {
+    toggleButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isVisible = (historyList as HTMLElement).style.display === 'block';
+      (historyList as HTMLElement).style.display = isVisible ? 'none' : 'block';
+      (toggleButton as HTMLElement).textContent = isVisible ? 'Show' : 'Hide';
+      
+      if (!isVisible) {
+        // Sort articles by timestamp, most recent first
+        const sortedArticles = [...state.historicalArticles].sort((a, b) => b.timestamp - a.timestamp);
+        historyUrls.innerHTML = sortedArticles
+          .map(article => `
+            <a href="${article.url}" target="_blank" class="history-url">
+              <span class="history-title">${article.title}</span>
+              <span class="history-domain">${new URL(article.url).hostname}</span>
+            </a>
+          `)
+          .join('');
+      }
+    });
+  }
+
+  return popup;
+}
+
+function updateStats(): void {
+  const currentTimeElement = document.querySelector('.current-time');
+  const totalTimeElement = document.querySelector('.total-time');
+  const articlesReadElement = document.querySelector('.articles-read');
+  
+  if (state.startTime) {
+    const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+    
+    // Update current article time
+    if (currentTimeElement) {
+      currentTimeElement.textContent = formatTime(currentElapsedSeconds);
+    }
+    
+    // Update total time (historical + current)
+    if (totalTimeElement) {
+      const totalSeconds = state.historicalTime + currentElapsedSeconds;
+      totalTimeElement.textContent = formatTime(totalSeconds);
+    }
+  } else {
+    // When not reading, just show historical time
+    if (totalTimeElement) {
+      totalTimeElement.textContent = formatTime(state.historicalTime);
+    }
+    if (currentTimeElement) {
+      currentTimeElement.textContent = '00:00';
+    }
+  }
+  
+  if (articlesReadElement) {
+    articlesReadElement.textContent = state.historicalArticles.length.toString();
+  }
 }
 
 function formatTime(seconds: number): string {
@@ -44,20 +288,13 @@ function formatTime(seconds: number): string {
 function startTimer(): void {
   if (state.timerInterval) return;
   
-  if (state.lastPauseTime) {
-    state.totalElapsedTime += Math.floor((state.lastPauseTime - (state.startTime || 0)) / 1000);
-  }
-  
   state.startTime = Date.now();
   state.lastPauseTime = null;
-  const timerElement = document.querySelector('.reading-timer');
+  state.currentArticleTime = 0;
   
   state.timerInterval = window.setInterval(() => {
-    if (!state.startTime || !timerElement) return;
-    
-    const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
-    const totalSeconds = state.historicalTime + state.totalElapsedTime + currentElapsedSeconds;
-    timerElement.textContent = `Total reading time: ${formatTime(totalSeconds)}`;
+    if (!state.startTime) return;
+    updateStats();
   }, 1000);
 }
 
@@ -65,13 +302,14 @@ function pauseTimer(): void {
   if (state.timerInterval) {
     clearInterval(state.timerInterval);
     state.timerInterval = null;
-    state.lastPauseTime = Date.now();
     
     // Calculate and save the total time spent reading
     if (state.startTime) {
       const currentElapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
-      state.historicalTime += state.totalElapsedTime + currentElapsedSeconds;
+      state.historicalTime += currentElapsedSeconds;
+      state.currentArticleTime = 0;
       localStorage.setItem('bionicReadingTime', state.historicalTime.toString());
+      updateStats();
     }
   }
 }
@@ -83,12 +321,8 @@ function resetTimer(): void {
   }
   state.startTime = null;
   state.lastPauseTime = null;
-  state.totalElapsedTime = 0;
-  
-  const timerElement = document.querySelector('.reading-timer');
-  if (timerElement) {
-    timerElement.textContent = `Total reading time: ${formatTime(state.historicalTime)}`;
-  }
+  state.currentArticleTime = 0;
+  updateStats();
 }
 
 // Common words to skip bionic highlighting
@@ -150,6 +384,32 @@ async function initializeReader(): Promise<void> {
   const overlay = createReaderOverlay();
   document.body.appendChild(overlay);
 
+  const statsButton = overlay.querySelector('#stats-button') as HTMLElement;
+  const statsPopup = createStatsPopup();
+  statsButton.appendChild(statsPopup);
+
+  // Add click handler for stats button
+  statsButton.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const popup = statsButton.querySelector('.stats-popup') as HTMLElement;
+    if (popup) {
+      state.isStatsOpen = !state.isStatsOpen;
+      popup.style.display = state.isStatsOpen ? 'block' : 'none';
+      updateStats();
+    }
+  });
+
+  // Close stats popup when clicking outside
+  document.addEventListener('click', () => {
+    if (state.isStatsOpen) {
+      const popup = statsButton.querySelector('.stats-popup') as HTMLElement;
+      if (popup) {
+        popup.style.display = 'none';
+        state.isStatsOpen = false;
+      }
+    }
+  });
+
   const closeButton = overlay.querySelector('.close-button');
   closeButton?.addEventListener('click', () => {
     overlay.style.display = 'none';
@@ -169,21 +429,8 @@ async function showReader(): Promise<void> {
     const content = overlay.querySelector('.reader-content');
     if (!content) return Promise.resolve();
 
-    // Clear all content including the timer
     content.innerHTML = '';
     
-    // Remove any existing timer elements
-    const existingTimer = overlay.querySelector('.reading-timer');
-    if (existingTimer) {
-      existingTimer.remove();
-    }
-
-    // Create a new timer element
-    const timerElement = document.createElement('div');
-    timerElement.className = 'reading-timer';
-    timerElement.textContent = `Total reading time: ${formatTime(state.historicalTime)}`;
-    overlay.querySelector('.reader-container')?.appendChild(timerElement);
-
     const tempContainer = document.createElement('div');
     tempContainer.innerHTML = article.content;
 
@@ -198,8 +445,20 @@ async function showReader(): Promise<void> {
 
     content.appendChild(tempContainer);
     
+    // Add current article to history if not already present
+    const currentUrl = window.location.href;
+    if (!state.historicalArticles.some(article => article.url === currentUrl)) {
+      state.historicalArticles.push({
+        url: currentUrl,
+        title: article.title || document.title,
+        timestamp: Date.now()
+      });
+      localStorage.setItem('bionicReadingArticles', JSON.stringify(state.historicalArticles));
+    }
+    
     overlay.style.display = 'flex';
     state.isOpen = true;
+    updateStats();
     startTimer();
   } catch (error) {
     console.error('Error parsing article:', error);

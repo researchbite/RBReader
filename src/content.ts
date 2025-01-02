@@ -44,7 +44,7 @@ function createReaderOverlay(): HTMLElement {
           <path d="M6 6H14M6 10H14M6 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
-      <button class="icon-button close-button">×</button>
+      <button class="icon-button close-button" title="Exit Reader Mode (Esc)">×</button>
       <div class="reader-content"></div>
     </div>
   `;
@@ -488,14 +488,6 @@ initializeReader().catch(console.error);
 
 // Add keyboard shortcut listeners
 document.addEventListener('keydown', (event: KeyboardEvent) => {
-  // Control + Shift + R to enter reading mode
-  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
-    event.preventDefault(); // Prevent default browser behavior
-    if (!state.isOpen) {
-      showReader().catch(console.error);
-    }
-  }
-  
   // Escape to exit reading mode
   if (event.key === 'Escape') {
     if (state.isOpen) {

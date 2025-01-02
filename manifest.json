@@ -10,8 +10,8 @@
   "commands": {
     "toggle-reader": {
       "suggested_key": {
-        "default": "Ctrl+Shift+R",
-        "mac": "Ctrl+Shift+R"
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
       },
       "description": "Toggle reader mode"
     }
@@ -21,7 +21,8 @@
       "16": "icons/bionic-reading-icon-16.png",
       "48": "icons/bionic-reading-icon-48.png",
       "128": "icons/bionic-reading-icon-128.png"
-    }
+    },
+    "default_title": "Bionic Reading (⌘+⇧+B)"
   },
   "icons": {
     "16": "icons/bionic-reading-icon-16.png",

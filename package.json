@@ -10,7 +10,8 @@
     "build:prod": "NODE_ENV=production npm run package"
   },
   "dependencies": {
-    "@mozilla/readability": "^0.4.4"
+    "@mozilla/readability": "^0.4.4",
+    "ai": "^2.1.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.242",

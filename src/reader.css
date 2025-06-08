@@ -179,4 +179,10 @@
   .reader-title {
     font-size: 1.75rem;
   }
-} 
+}
+
+mark.ai-highlight {
+  background-color: #fff59e;
+  padding: 0 2px;
+  border-radius: 4px;
+}

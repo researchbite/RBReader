@@ -1,5 +1,6 @@
 // Import Readability from the package
 import { Readability } from '@mozilla/readability';
+import { experimental_streamText } from 'ai';
 
 interface HistoricalArticle {
   url: string;
@@ -368,6 +369,24 @@ function applyBionicReadingToHTML(element: HTMLElement): void {
   });
 }
 
+async function highlightImportantLines(element: HTMLElement): Promise<void> {
+  try {
+    const prompt = `Highlight the most important sentences from the article below. Wrap each sentence you highlight in <mark class="ai-highlight"> tags and return only the resulting HTML.\n\n${element.innerText}`;
+    const stream = experimental_streamText({
+      model: 'openai/gpt-3.5-turbo',
+      prompt
+    });
+
+    let html = '';
+    for await (const chunk of stream) {
+      html += chunk;
+      element.innerHTML = html;
+    }
+  } catch (error) {
+    console.error('Auto highlighting failed:', error);
+  }
+}
+
 function clearReaderContent(): void {
   const content = document.querySelector('.reader-content');
   if (content) {
@@ -460,6 +479,7 @@ async function showReader(): Promise<void> {
     state.isOpen = true;
     updateStats();
     startTimer();
+    highlightImportantLines(tempContainer).catch(console.error);
   } catch (error) {
     console.error('Error parsing article:', error);
   }
@@ -468,6 +488,10 @@ async function showReader(): Promise<void> {
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'isAlive') {
+    sendResponse(true);
+    return true;
+  }
   if (message.action === 'toggleReader') {
     if (!state.isOpen) {
       showReader().catch(console.error);

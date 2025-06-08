@@ -22,9 +22,9 @@ Output format: <hl prefix="..." suffix="...">Important sentence here</hl><hl pre
 };
 
 export const AI_CONFIG = {
-  model: 'gpt-4.1',
+  model: 'gpt-4o-mini',
   temperature: 0.3,
-  maxTokens: 1000,
+  maxTokens: 8096,
   minSentenceLength: 20,
   stream: true // Enable streaming
 };

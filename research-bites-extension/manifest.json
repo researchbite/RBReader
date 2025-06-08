@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Bionic Reading",
+  "name": "Research Bites",
   "version": "1.0.0",
-  "description": "Transform web content into bionic reading format for ADHD readers",
+  "description": "Transform web content into a focused reading format using bionic highlighting techniques",
   "permissions": [
     "activeTab",
     "scripting"

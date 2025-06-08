@@ -40,7 +40,26 @@
   overflow-y: visible;
   flex: 1;
   padding-right: 0;
-  margin-top: 2rem;
+  margin-top: 4rem;
+}
+
+.reader-content strong {
+  font-weight: 600;
+  color: inherit;
+  background: none;
+}
+
+.reader-content mark.ai-highlight {
+  background-color: #fff59e !important;
+  padding: 0 2px;
+  border-radius: 4px;
+  color: inherit !important;
+}
+
+.reader-content mark.ai-highlight strong {
+  background: none;
+  color: inherit;
+  font-weight: 600;
 }
 
 .reader-title {
@@ -174,15 +193,10 @@
   
   .reader-content {
     font-size: 1rem;
+    margin-top: 3.5rem;
   }
   
   .reader-title {
     font-size: 1.75rem;
   }
-}
-
-mark.ai-highlight {
-  background-color: #fff59e;
-  padding: 0 2px;
-  border-radius: 4px;
 }

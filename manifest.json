@@ -5,8 +5,10 @@
   "description": "Transform web content into a focused reading format using bionic highlighting techniques",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
+  "options_page": "options.html",
   "commands": {
     "toggle-reader": {
       "suggested_key": {

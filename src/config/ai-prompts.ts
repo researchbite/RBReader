@@ -8,19 +8,29 @@ export const AI_PROMPTS = {
 1. Carefully read and understand the entire article
 2. Identify the 5-10 most important sentences that contain key insights, main arguments, or crucial information
 3. Focus on sentences that would help a reader quickly understand the core message
-4. Prefer sentences that are self-contained and meaningful on their own`,
+4. Prefer sentences that are self-contained and meaningful on their own
+5. Output each important sentence wrapped in <hl prefix="{first10}" suffix="{last10}"></hl> tags, where {first10} is the 10 characters that immediately precede the sentence in the article and {last10} is the 10 characters that immediately follow it. Escape any quotes in these attributes.
+6. Do not include any newlines within the <hl> tags or attribute values
+7. Output the highlights as you identify them for streaming`,
 
-  user: (articleText: string) => `Please analyze this article and return ONLY the most important sentences, exactly as they appear in the text. Return one sentence per line, with no additional formatting or explanation.
+  user: (articleText: string) => `Please analyze this article and identify the most important sentences. Wrap each important sentence in <hl prefix="{first10}" suffix="{last10}"></hl> tags (see system prompt for details). Do not add newlines inside the tags or attribute values.
 
 Article:
 ${articleText.substring(0, 8000)} // Limit to prevent token overflow
 
-Important sentences (one per line):`
+Output format: <hl prefix="..." suffix="...">Important sentence here</hl><hl prefix="..." suffix="...">Another important sentence</hl>`
 };
 
 export const AI_CONFIG = {
-  model: 'gpt-4o-mini',
+  model: 'gpt-4.1',
   temperature: 0.3,
   maxTokens: 1000,
-  minSentenceLength: 20
+  minSentenceLength: 20,
+  stream: true // Enable streaming
+};
+
+export const HIGHLIGHT_ANIMATION = {
+  duration: 600, // milliseconds
+  stagger: 150, // delay between highlights
+  easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
 }; 

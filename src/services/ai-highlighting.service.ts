@@ -3,29 +3,83 @@
  * Handles AI-powered important sentence highlighting
  */
 
-import { AI_PROMPTS, AI_CONFIG } from '../config/ai-prompts';
+import { AI_PROMPTS, AI_CONFIG, HIGHLIGHT_ANIMATION } from '../config/ai-prompts';
 import { IMPORTANT_KEYWORDS } from '../config/constants';
 import { StorageService } from './storage.service';
 
 export class AIHighlightingService {
+  private static highlightIndex = 0;
+
   /**
-   * Add CSS styles for AI highlights
+   * Add CSS styles for AI highlights with animations
    */
   static addHighlightStyles(): void {
     if (!document.getElementById('ai-highlight-styles')) {
       const style = document.createElement('style');
       style.id = 'ai-highlight-styles';
       style.textContent = `
+        @keyframes highlightFadeIn {
+          0% {
+            background-color: #fff59d;
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(255, 235, 59, 0.6);
+          }
+          50% {
+            background-color: #fff176;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(255, 235, 59, 0.4);
+          }
+          100% {
+            background-color: #ffeb3b;
+            transform: scale(1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+        }
+
+        @keyframes highlightPulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.8;
+          }
+        }
+
         .ai-highlight {
           background-color: #ffeb3b !important;
-          padding: 2px 4px !important;
-          border-radius: 3px !important;
+          padding: 2px 0 !important;
+          border-radius: 0 !important;
           color: black !important;
           font-weight: normal !important;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+          position: relative !important;
+          display: inline !important;
+          animation: highlightFadeIn ${HIGHLIGHT_ANIMATION.duration}ms ${HIGHLIGHT_ANIMATION.easing} !important;
+          transition: all 0.3s ease !important;
         }
+
+        .ai-highlight:hover {
+          background-color: #fdd835 !important;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        .ai-highlight.streaming {
+          animation: highlightPulse 1s ease-in-out infinite !important;
+        }
+
         mark.ai-highlight {
           background-color: #ffeb3b !important;
+        }
+
+        /* Hide badge numbers */
+        .ai-highlight::before {
+          display: none !important;
+        }
+
+        /* Remove gap between consecutive highlight elements */
+        .ai-highlight + .ai-highlight {
+          margin-left: 0 !important;
         }
       `;
       document.head.appendChild(style);
@@ -33,10 +87,11 @@ export class AIHighlightingService {
   }
 
   /**
-   * Highlight important lines using AI
+   * Highlight important lines using AI with streaming
    */
   static async highlightImportantLines(element: HTMLElement): Promise<void> {
     console.log('🎯 highlightImportantLines called');
+    this.highlightIndex = 0; // Reset counter
     
     try {
       // Get API key from user settings
@@ -54,9 +109,9 @@ export class AIHighlightingService {
 
       this.addHighlightStyles();
 
-      // Try real AI highlighting first
+      // Try real AI highlighting with streaming
       try {
-        console.log('🤖 Attempting real AI highlighting...');
+        console.log('🤖 Starting streaming AI highlighting...');
         
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -71,7 +126,8 @@ export class AIHighlightingService {
               { role: 'user', content: AI_PROMPTS.user(articleText) }
             ],
             temperature: AI_CONFIG.temperature,
-            max_tokens: AI_CONFIG.maxTokens
+            max_tokens: AI_CONFIG.maxTokens,
+            stream: AI_CONFIG.stream
           })
         });
 
@@ -79,32 +135,78 @@ export class AIHighlightingService {
           throw new Error(`API request failed: ${response.status}`);
         }
 
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
-        console.log('✅ AI response received:', aiResponse.substring(0, 200) + '...');
-
-        // Parse the important sentences
-        const importantSentences = aiResponse
-          .split('\n')
-          .filter((line: string) => line.trim().length > AI_CONFIG.minSentenceLength)
-          .map((line: string) => line.trim());
-
-        console.log('📊 Important sentences identified:', importantSentences.length);
-
-        // Highlight the sentences in the DOM
+        // Process streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
         let highlightCount = 0;
-        importantSentences.forEach((sentence: string, index: number) => {
-          console.log(`🔍 Attempting to highlight sentence ${index + 1}:`, sentence);
-          const highlighted = this.highlightSentenceInElement(element, sentence);
-          if (highlighted) {
-            highlightCount++;
-            console.log(`✨ Successfully highlighted sentence ${index + 1}`);
-          } else {
-            console.log(`❌ Failed to highlight sentence ${index + 1}`);
-          }
-        });
 
-        console.log(`✅ AI highlighting completed - ${highlightCount} highlights applied`);
+        // Accumulate pieces that may contain partial <hl> tags
+        let partialHighlightBuffer = '';
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            // Decode chunk
+            buffer += decoder.decode(value, { stream: true });
+
+            // Each SSE event is separated by a newline
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Preserve incomplete line
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+
+              try {
+                const parsed = JSON.parse(data);
+                const contentFragment = parsed.choices?.[0]?.delta?.content ?? '';
+
+                if (!contentFragment) continue;
+
+
+                // Append fragment to the partial buffer which might contain unfinished <hl> tags
+                partialHighlightBuffer += contentFragment;
+
+                // Look for one or more complete <hl>...</hl> tags in the buffer
+                const tagRegex = /<hl\b[^>]*>(.*?)<\/hl>/g;
+                let match: RegExpExecArray | null;
+
+                while ((match = tagRegex.exec(partialHighlightBuffer)) !== null) {
+                  const sentence = match[1].trim();
+                  console.log(`🔍 Extracted complete <hl> tag (${sentence.length} chars)`);
+
+                  // Schedule highlighting with staggered animation
+                  const currentIndex = highlightCount + 1;
+                  setTimeout(() => {
+                    const ok = this.highlightSentenceInElement(element, sentence, currentIndex);
+                    console[ok ? 'log' : 'warn'](`➡️ Highlight ${currentIndex} ${ok ? 'applied' : 'not found in DOM'}`);
+                  }, highlightCount * HIGHLIGHT_ANIMATION.stagger);
+
+                  highlightCount++;
+                }
+
+                // Remove processed highlights from buffer to keep it small
+                if (highlightCount > 0) {
+                  // Keep anything after the last complete </hl>
+                  const lastCloseTagIdx = partialHighlightBuffer.lastIndexOf('</hl>');
+                  if (lastCloseTagIdx !== -1) {
+                    partialHighlightBuffer = partialHighlightBuffer.slice(lastCloseTagIdx + 5);
+                  }
+                }
+
+              } catch (err) {
+                console.error('❌ Failed to parse SSE chunk:', err, line);
+              }
+            }
+          }
+        }
+
+        console.log(`✅ Streaming AI highlighting completed - ${highlightCount} highlights applied`);
 
       } catch (aiError) {
         console.error('❌ AI highlighting failed, falling back to simulation:', aiError);
@@ -120,9 +222,24 @@ export class AIHighlightingService {
   }
 
   /**
-   * Highlight a specific sentence in the DOM
+   * Extract highlights from streamed content
    */
-  private static highlightSentenceInElement(element: HTMLElement, sentence: string): boolean {
+  private static extractHighlights(content: string): string[] {
+    const highlights: string[] = [];
+    const regex = /<hl\b[^>]*>(.*?)<\/hl>/g;
+    let match;
+    
+    while ((match = regex.exec(content)) !== null) {
+      highlights.push(match[1].trim());
+    }
+    
+    return highlights;
+  }
+
+  /**
+   * Highlight a specific sentence in the DOM with animation
+   */
+  private static highlightSentenceInElement(element: HTMLElement, sentence: string, index: number): boolean {
     // Normalize the sentence for matching
     const normalizedSentence = sentence.trim().replace(/\s+/g, ' ').toLowerCase();
     if (normalizedSentence.length < 10) return false;
@@ -135,24 +252,33 @@ export class AIHighlightingService {
     for (const block of blockElements) {
       // Collect all text nodes in this block
       const { nodes, totalText } = this.collectTextNodes(block);
-      const normalizedBlockText = totalText.replace(/\s+/g, ' ').toLowerCase();
       
-      // Check if this block contains our sentence
-      const index = normalizedBlockText.indexOf(normalizedSentence);
-      if (index !== -1) {
-        console.log(`📍 Found match in block at position ${index}`);
-        
-        // Map the normalized position back to actual position
-        const { actualStart, actualEnd } = this.findActualPositions(
-          totalText, 
-          normalizedSentence, 
-          index
-        );
-        
-        console.log(`📏 Highlighting from ${actualStart} to ${actualEnd} in text of length ${totalText.length}`);
-        
-        // Highlight the range
-        if (this.highlightRange(nodes, actualStart, actualEnd)) {
+      // Build a whitespace-tolerant regular expression for the exact sentence.
+      // 1. Escape regex metacharacters in the sentence.
+      // 2. Replace all runs of whitespace with the pattern "\s+" so that we
+      //    can match across line-breaks and multiple spaces.
+      const flexiblePattern = this.escapeRegex(sentence).replace(/\s+/g, "\\s+");
+      const flexibleRegex = new RegExp(flexiblePattern, 'i');
+
+      const match = totalText.match(flexibleRegex);
+
+      if (match && typeof match.index === 'number') {
+        // Compute actual start/end indices in the raw text
+        let actualStart = match.index;
+        let actualEnd = match.index + match[0].length;
+
+        // Trim leading/trailing whitespace so we highlight only the words
+        while (actualStart < actualEnd && /\s/.test(totalText[actualStart])) {
+          actualStart++;
+        }
+        while (actualEnd > actualStart && /\s/.test(totalText[actualEnd - 1])) {
+          actualEnd--;
+        }
+
+        console.log(`📍 Found match in block at position ${actualStart}`);
+
+        // Highlight the range with animation
+        if (this.highlightRange(nodes, actualStart, actualEnd, index)) {
           console.log(`✅ Successfully highlighted in block`);
           return true;
         }
@@ -191,52 +317,13 @@ export class AIHighlightingService {
   }
 
   /**
-   * Find actual positions in text
-   */
-  private static findActualPositions(
-    totalText: string, 
-    normalizedSentence: string, 
-    normalizedIndex: number
-  ): { actualStart: number, actualEnd: number } {
-    let actualStart = 0;
-    let normalizedPos = 0;
-    const lowerTotalText = totalText.toLowerCase();
-    
-    // Find actual start position
-    for (let i = 0; i < totalText.length && normalizedPos <= normalizedIndex; i++) {
-      if (i === 0 || totalText[i-1] === ' ' || totalText[i] !== ' ') {
-        if (normalizedPos === normalizedIndex) {
-          actualStart = i;
-          break;
-        }
-        normalizedPos++;
-      }
-    }
-    
-    // Find actual end position
-    let actualEnd = actualStart;
-    let matchLength = 0;
-    for (let i = actualStart; i < totalText.length && matchLength < normalizedSentence.length; i++) {
-      if (lowerTotalText.substring(i, i + normalizedSentence.length - matchLength) === normalizedSentence.substring(matchLength)) {
-        actualEnd = i + normalizedSentence.length - matchLength;
-        break;
-      }
-      if (i === actualStart || totalText[i-1] === ' ' || totalText[i] !== ' ') {
-        matchLength++;
-      }
-      actualEnd = i + 1;
-    }
-    
-    return { actualStart, actualEnd };
-  }
-
-  /**
-   * Highlight a range of text across multiple nodes
+   * Highlight a range of text across multiple nodes with animation
    */
   private static highlightRange(
     nodes: { node: Node, text: string, offset: number }[], 
     startOffset: number, 
-    endOffset: number
+    endOffset: number,
+    highlightIndex: number
   ): boolean {
     let highlighted = false;
     
@@ -267,6 +354,7 @@ export class AIHighlightingService {
           
           const mark = document.createElement('mark');
           mark.className = 'ai-highlight';
+          mark.setAttribute('data-highlight-index', String(highlightIndex));
           mark.textContent = middle;
           parent.insertBefore(mark, textNode);
           
@@ -291,8 +379,9 @@ export class AIHighlightingService {
     console.log('📊 Found paragraphs for simulation:', paragraphs.length);
     
     let highlightCount = 0;
+    const highlightsToApply: { paragraph: HTMLElement, sentence: string }[] = [];
     
-    // Highlight important-looking sentences
+    // Collect important-looking sentences first
     paragraphs.forEach((paragraph, index) => {
       const text = paragraph.textContent || '';
       
@@ -314,34 +403,41 @@ export class AIHighlightingService {
           IMPORTANT_KEYWORDS.research.test(trimmedSentence) ||
           IMPORTANT_KEYWORDS.transition.test(trimmedSentence);
         
-        if (isImportant && highlightCount < 10) {
-          const highlighted = this.highlightTextInParagraph(paragraph, trimmedSentence);
-          if (highlighted) {
-            highlightCount++;
-            console.log('✨ Simulated highlight:', trimmedSentence.substring(0, 50) + '...');
-          }
+        if (isImportant && highlightsToApply.length < 10) {
+          highlightsToApply.push({ paragraph, sentence: trimmedSentence });
         }
       });
     });
     
-    console.log(`✅ Simulation highlighting completed - ${highlightCount} highlights applied`);
+    // Apply highlights with staggered animation
+    highlightsToApply.forEach((item, index) => {
+      setTimeout(() => {
+        const highlighted = this.highlightTextInParagraph(item.paragraph, item.sentence, index + 1);
+        if (highlighted) {
+          highlightCount++;
+          console.log('✨ Simulated highlight:', item.sentence.substring(0, 50) + '...');
+        }
+      }, index * HIGHLIGHT_ANIMATION.stagger);
+    });
+    
+    console.log(`✅ Simulation highlighting scheduled - ${highlightsToApply.length} highlights`);
   }
 
   /**
-   * Highlight text within a paragraph
+   * Highlight text within a paragraph with animation
    */
-  private static highlightTextInParagraph(paragraph: HTMLElement, text: string): boolean {
+  private static highlightTextInParagraph(paragraph: HTMLElement, text: string, index: number): boolean {
     // Normalize the text for matching
     const normalizedText = text.trim().replace(/\s+/g, ' ');
     if (normalizedText.length < 10) return false;
 
-    return this.highlightInNode(paragraph, normalizedText);
+    return this.highlightInNode(paragraph, normalizedText, index);
   }
 
   /**
-   * Recursively highlight text in a node
+   * Recursively highlight text in a node with animation
    */
-  private static highlightInNode(node: Node, normalizedText: string): boolean {
+  private static highlightInNode(node: Node, normalizedText: string, highlightIndex: number): boolean {
     if (node.nodeType === Node.TEXT_NODE) {
       const nodeText = node.textContent || '';
       const normalizedNodeText = nodeText.replace(/\s+/g, ' ');
@@ -366,6 +462,7 @@ export class AIHighlightingService {
           
           const mark = document.createElement('mark');
           mark.className = 'ai-highlight';
+          mark.setAttribute('data-highlight-index', String(highlightIndex));
           mark.textContent = match;
           parent.insertBefore(mark, node);
           
@@ -384,7 +481,7 @@ export class AIHighlightingService {
       // Recursively process child nodes
       const children = Array.from(node.childNodes);
       for (const child of children) {
-        if (this.highlightInNode(child, normalizedText)) {
+        if (this.highlightInNode(child, normalizedText, highlightIndex)) {
           return true;
         }
       }
@@ -422,5 +519,13 @@ export class AIHighlightingService {
     }
     
     return { actualStart, actualEnd };
+  }
+
+  /**
+   * Escape special characters so that a plain sentence can be safely inserted
+   * into a dynamic regular expression.
+   */
+  private static escapeRegex(text: string): string {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 } 

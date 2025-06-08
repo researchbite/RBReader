@@ -1,30 +1,36 @@
-# Bionic Reading Extension
+# Research Bites
 
-A Chrome extension that transforms web content into a more readable format using bionic reading techniques, specifically designed for ADHD readers.
+Research Bites is a browser extension that presents articles in a clean overlay and highlights the beginning of each word to aid focus. It is built with TypeScript and Mozilla's Readability library.
 
 ## Features
 
-- Clean reading view using Mozilla's Readability.js
-- Bionic reading format (bold first half of words) for improved focus
-- Overlay reader mode for distraction-free reading
-- One-click activation via extension icon
+- **Bionic Reading** – emphasises the first letters of words for easier scanning.
+- Extracts readable content using Readability.
+- **Auto Highlighter** *(planned)* – uses AI to mark the most important lines on a page.
+- **Jargon Free Translator** *(planned)* – simplifies text by removing complex jargon.
+- Distraction‑free overlay with a reading timer and stats.
+- Keyboard shortcut and toolbar icon for quick access.
 
-## Technical Stack
+## Repository structure
 
-- Chrome Extensions Manifest V3
-- Mozilla Readability.js for content parsing
-- TypeScript for type-safe development
+- `src/` – TypeScript sources for the extension
+  - `content.ts` – implements the overlay and highlighting logic
+  - `background.ts` – injects the content script and handles shortcuts
+  - `reader.css` – styles for the reader overlay
+  - `icons/` – extension icons
+- `manifest.json` – Chrome extension manifest
+- `webpack.config.js` – build configuration
+- `research-bites-extension/` – prebuilt version of the extension
 
 ## Development
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Build the extension: `npm run build`
-4. Load unpacked extension in Chrome from the `dist` folder
+1. Install dependencies with `npm install`.
+2. Build the extension using `npm run build`.
+3. Load the `dist` folder as an unpacked extension in Chrome.
 
-## How it Works
+## How it works
 
-1. When clicking the extension icon, it creates a clean overlay of the current page
-2. Readability.js processes the page content for better readability
-3. The bionic reading algorithm bolds the first half of each word
-4. Presents the content in a distraction-free reading interface
+1. Clicking the icon or using the shortcut injects the reader overlay.
+2. Readability parses the current page to extract the main article.
+3. The script highlights the first portion of each word.
+4. The overlay displays the result with options to close or view stats.

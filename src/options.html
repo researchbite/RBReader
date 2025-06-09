@@ -25,6 +25,23 @@
             color: #6c6c70;
             margin-bottom: 30px;
         }
+        .auto-open-notice {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .auto-open-notice h3 {
+            margin: 0 0 8px 0;
+            color: #1565c0;
+        }
+        .auto-open-notice p {
+            margin: 0;
+            color: #1565c0;
+            font-size: 13px;
+        }
         .form-group {
             margin-bottom: 20px;
         }
@@ -59,6 +76,11 @@
         .help-text a:hover {
             text-decoration: underline;
         }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
         button {
             background: #007aff;
             color: white;
@@ -76,6 +98,12 @@
         button:disabled {
             background: #d1d5db;
             cursor: not-allowed;
+        }
+        .secondary-button {
+            background: #6c6c70;
+        }
+        .secondary-button:hover {
+            background: #5a5a5e;
         }
         .status {
             margin-top: 15px;
@@ -117,6 +145,11 @@
         <h1>Research Bites Extension</h1>
         <p class="subtitle">Configure your AI highlighting settings</p>
         
+        <div id="autoOpenNotice" class="auto-open-notice">
+            <h3>🔑 API Key Required</h3>
+            <p>To use AI-powered highlighting, please enter your OpenAI API key below. This page opened automatically because no API key was found.</p>
+        </div>
+        
         <div class="security-note">
             <h3>🔒 Security Notice</h3>
             <p>Your API key is stored locally in your browser and is never shared with us or any third parties. It's only used to make requests directly to OpenAI's servers.</p>
@@ -132,7 +165,10 @@
                 </div>
             </div>
             
-            <button type="submit" id="saveButton">Save Settings</button>
+            <div class="button-group">
+                <button type="submit" id="saveButton">Save Settings</button>
+                <button type="button" id="closeButton" class="secondary-button" style="display: none;">Close & Try Again</button>
+            </div>
             
             <div id="status" class="status"></div>
         </form>

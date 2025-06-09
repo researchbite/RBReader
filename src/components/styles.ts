@@ -5,18 +5,16 @@
 
 export const READER_STYLES = `
   .reader-controls {
-    position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
-    right: 1.5rem;
+    position: absolute;
+    top: 2rem;
+    left: 3rem;
+    right: 3rem;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     flex-wrap: nowrap;
     z-index: 10001;
-    max-width: 680px;
-    margin: 0 auto;
-    width: calc(100% - 3rem);
+    width: calc(100% - 6rem);
   }
   .bionic-toggle-container {
     display: flex;
@@ -32,7 +30,7 @@ export const READER_STYLES = `
   .bionic-toggle-label {
     font-size: 14px;
     font-weight: 500;
-    color: #1c1c1e;
+    color: #2c2c2c;
     user-select: none;
   }
   .bionic-toggle {
@@ -70,48 +68,55 @@ export const READER_STYLES = `
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
   .bionic-toggle input:checked + .toggle-slider {
-    background-color: #007aff;
+    background-color: #8b7355;
   }
   .bionic-toggle input:checked + .toggle-slider:before {
     transform: translateX(18px);
   }
   .bionic-toggle input:focus + .toggle-slider {
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.3);
   }
   .icon-button {
     width: 32px;
     height: 32px;
     border: none;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #1c1c1e;
+    color: #2c2c2c;
     font-size: 20px;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
     position: relative;
   }
   .stats-button {
     position: relative;
   }
   .close-button {
-    position: relative;
+    position: relative !important;
     margin-left: auto;
     align-self: center;
+    top: auto !important;
+    right: auto !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    background: none !important;
+    border-radius: 8px !important;
   }
   .icon-button:hover {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(0, 0, 0, 0.05);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: none;
   }
   .icon-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
   }
   /* Ensure bionic strong tags don't interfere with highlights */
   .reader-content strong {
@@ -125,10 +130,10 @@ export const READER_STYLES = `
   }
   @media (max-width: 768px) {
     .reader-controls {
-      top: 1rem;
-      left: 1rem;
-      right: 1rem;
-      width: calc(100% - 2rem);
+      top: 1.5rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      width: calc(100% - 3rem);
     }
     .bionic-toggle-container {
       padding: 6px 12px;
@@ -144,7 +149,7 @@ export const STATS_POPUP_STYLES = `
     position: absolute;
     left: 0;
     top: calc(100% + 8px);
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 12px;

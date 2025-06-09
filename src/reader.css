@@ -104,31 +104,6 @@
   margin-top: 0.5em;
 }
 
-.close-button {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #2c2c2c;
-  padding: 0.5rem;
-  line-height: 1;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.close-button:hover {
-  background: rgba(0, 0, 0, 0.2);
-  color: #2c2c2c;
-}
-
 .reader-content blockquote {
   margin: 2em 0;
   padding-left: 1.5em;

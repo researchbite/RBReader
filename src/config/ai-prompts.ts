@@ -16,14 +16,14 @@ export const AI_PROMPTS = {
   user: (articleText: string) => `Please analyze this article and identify the most important sentences. Wrap each important sentence in <hl prefix="{first10}" suffix="{last10}"></hl> tags (see system prompt for details). Do not add newlines inside the tags or attribute values.
 
 Article:
-${articleText.substring(0, 8000)} // Limit to prevent token overflow
+${articleText}
 
 Output format: <hl prefix="..." suffix="...">Important sentence here</hl><hl prefix="..." suffix="...">Another important sentence</hl>`
 };
 
 export const AI_CONFIG = {
-  model: 'gpt-4o-mini',
-  temperature: 0.3,
+  model: 'gpt-4.1',
+  temperature: 0.7,
   maxTokens: 8096,
   minSentenceLength: 20,
   stream: true // Enable streaming

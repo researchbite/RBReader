@@ -17,6 +17,7 @@ export interface ReaderState {
   historicalArticles: HistoricalArticle[];
   isStatsOpen: boolean;
   isBionicEnabled: boolean;
+  isAutoHighlightEnabled: boolean;
 }
 
 export class ReaderStateService {
@@ -35,7 +36,8 @@ export class ReaderStateService {
       currentArticleTime: 0,
       historicalArticles: StorageService.getHistoricalArticles(),
       isStatsOpen: false,
-      isBionicEnabled: false
+      isBionicEnabled: false,
+      isAutoHighlightEnabled: false
     };
   }
 
@@ -83,6 +85,14 @@ export class ReaderStateService {
   async initializeBionicState(): Promise<void> {
     const enabled = await StorageService.getBionicEnabled();
     this.state.isBionicEnabled = enabled;
+  }
+
+  /**
+   * Initialize auto highlight state from storage
+   */
+  async initializeAutoHighlightState(): Promise<void> {
+    const enabled = await StorageService.getAutoHighlightEnabled();
+    this.state.isAutoHighlightEnabled = enabled;
   }
 
   /**

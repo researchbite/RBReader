@@ -6,6 +6,7 @@
 import { ReaderStateService } from '../services/reader-state.service';
 import { StorageService } from '../services/storage.service';
 import { BionicReadingService } from '../services/bionic-reading.service';
+import { AIHighlightingService } from '../services/ai-highlighting.service';
 import { SELECTORS } from '../config/constants';
 import { injectStyles } from './styles';
 import { StatsPopup } from './stats-popup';
@@ -41,6 +42,13 @@ export class ReaderOverlay {
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="bionic-toggle-container auto-highlight-toggle-container">
+            <label class="bionic-toggle-label">Auto Highlight</label>
+            <label class="bionic-toggle">
+              <input type="checkbox" id="auto-highlight-toggle-switch">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <button class="icon-button close-button" title="Exit Reader Mode (Esc)">×</button>
         </div>
         <div class="reader-content"></div>
@@ -72,6 +80,13 @@ export class ReaderOverlay {
       bionicToggle.checked = this.stateService.get('isBionicEnabled');
     }
 
+    // Initialize auto highlight state
+    await this.stateService.initializeAutoHighlightState();
+    const autoHighlightToggle = document.getElementById('auto-highlight-toggle-switch') as HTMLInputElement;
+    if (autoHighlightToggle) {
+      autoHighlightToggle.checked = this.stateService.get('isAutoHighlightEnabled');
+    }
+
     // Setup event listeners
     this.setupEventListeners();
     this.statsPopup.setupStatsButton(statsButton);
@@ -94,6 +109,21 @@ export class ReaderOverlay {
         const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
         if (content && this.stateService.get('isOpen')) {
           BionicReadingService.toggleBionicReading(content, isEnabled);
+        }
+      });
+    }
+
+    // Auto highlight toggle handler
+    const autoToggle = document.getElementById('auto-highlight-toggle-switch') as HTMLInputElement;
+    if (autoToggle) {
+      autoToggle.addEventListener('change', async (event) => {
+        const isEnabled = (event.target as HTMLInputElement).checked;
+        this.stateService.set('isAutoHighlightEnabled', isEnabled);
+        await StorageService.setAutoHighlightEnabled(isEnabled);
+
+        const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
+        if (content && this.stateService.get('isOpen') && isEnabled) {
+          AIHighlightingService.highlightImportantLines(content).catch(console.error);
         }
       });
     }

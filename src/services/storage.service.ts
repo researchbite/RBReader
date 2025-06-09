@@ -35,11 +35,31 @@ export class StorageService {
   }
 
   /**
+   * Get auto highlight enabled state from Chrome storage
+   */
+  static async getAutoHighlightEnabled(): Promise<boolean> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get([STORAGE_KEYS.autoHighlightEnabled], (result) => {
+        resolve(result[STORAGE_KEYS.autoHighlightEnabled] || false);
+      });
+    });
+  }
+
+  /**
    * Set bionic reading enabled state in Chrome storage
    */
   static async setBionicEnabled(enabled: boolean): Promise<void> {
     return new Promise((resolve) => {
       chrome.storage.sync.set({ [STORAGE_KEYS.bionicEnabled]: enabled }, resolve);
+    });
+  }
+
+  /**
+   * Set auto highlight enabled state in Chrome storage
+   */
+  static async setAutoHighlightEnabled(enabled: boolean): Promise<void> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.set({ [STORAGE_KEYS.autoHighlightEnabled]: enabled }, resolve);
     });
   }
 

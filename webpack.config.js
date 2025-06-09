@@ -32,7 +32,9 @@ module.exports = {
       patterns: [
         { from: 'manifest.json' },
         { from: 'src/reader.css' },
-        { from: 'src/icons', to: 'icons' }
+        { from: 'src/icons', to: 'icons' },
+        { from: 'src/options.html', to: 'options.html' },
+        { from: 'src/options.js', to: 'options.js' }
       ],
     }),
   ],

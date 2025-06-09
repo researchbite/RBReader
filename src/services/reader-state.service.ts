@@ -1,0 +1,117 @@
+/**
+ * Reader State Service
+ * Manages the state of the reader application
+ */
+
+import { StorageService, HistoricalArticle } from './storage.service';
+
+export interface ReaderState {
+  isOpen: boolean;
+  originalBody: string;
+  startTime: number | null;
+  timerInterval: number | null;
+  totalElapsedTime: number;
+  lastPauseTime: number | null;
+  historicalTime: number;
+  currentArticleTime: number;
+  historicalArticles: HistoricalArticle[];
+  isStatsOpen: boolean;
+  isBionicEnabled: boolean;
+}
+
+export class ReaderStateService {
+  private static instance: ReaderStateService;
+  private state: ReaderState;
+
+  private constructor() {
+    this.state = {
+      isOpen: false,
+      originalBody: '',
+      startTime: null,
+      timerInterval: null,
+      totalElapsedTime: 0,
+      lastPauseTime: null,
+      historicalTime: StorageService.getHistoricalTime(),
+      currentArticleTime: 0,
+      historicalArticles: StorageService.getHistoricalArticles(),
+      isStatsOpen: false,
+      isBionicEnabled: false
+    };
+  }
+
+  /**
+   * Get singleton instance
+   */
+  static getInstance(): ReaderStateService {
+    if (!ReaderStateService.instance) {
+      ReaderStateService.instance = new ReaderStateService();
+    }
+    return ReaderStateService.instance;
+  }
+
+  /**
+   * Get current state
+   */
+  getState(): ReaderState {
+    return this.state;
+  }
+
+  /**
+   * Update state properties
+   */
+  updateState(updates: Partial<ReaderState>): void {
+    this.state = { ...this.state, ...updates };
+  }
+
+  /**
+   * Get specific state property
+   */
+  get<K extends keyof ReaderState>(key: K): ReaderState[K] {
+    return this.state[key];
+  }
+
+  /**
+   * Set specific state property
+   */
+  set<K extends keyof ReaderState>(key: K, value: ReaderState[K]): void {
+    this.state[key] = value;
+  }
+
+  /**
+   * Initialize bionic enabled state from storage
+   */
+  async initializeBionicState(): Promise<void> {
+    const enabled = await StorageService.getBionicEnabled();
+    this.state.isBionicEnabled = enabled;
+  }
+
+  /**
+   * Toggle reader open/closed
+   */
+  toggleReader(): void {
+    this.state.isOpen = !this.state.isOpen;
+  }
+
+  /**
+   * Toggle stats popup
+   */
+  toggleStats(): void {
+    this.state.isStatsOpen = !this.state.isStatsOpen;
+  }
+
+  /**
+   * Update historical time and save to storage
+   */
+  updateHistoricalTime(additionalTime: number): void {
+    this.state.historicalTime += additionalTime;
+    StorageService.setHistoricalTime(this.state.historicalTime);
+  }
+
+  /**
+   * Add article to history
+   */
+  addArticleToHistory(url: string, title: string): void {
+    StorageService.addArticleToHistory(url, title);
+    this.state.historicalArticles = StorageService.getHistoricalArticles();
+  }
+} 

@@ -20,11 +20,19 @@ export class JargonTranslationService {
     const paragraphs = Array.from(container.querySelectorAll('p')) as HTMLElement[];
     for (const p of paragraphs) {
       const original = p.textContent || '';
-      p.dataset.originalText = original;
-      p.textContent = '';
+      if (!p.dataset.originalText) {
+        p.dataset.originalText = original;
+      }
 
+      if (p.dataset.translatedText) {
+        p.textContent = p.dataset.translatedText;
+        continue;
+      }
+
+      p.textContent = '';
       try {
-        await this.streamTranslation(p, original, apiKey);
+        const translated = await this.streamTranslation(p, original, apiKey);
+        p.dataset.translatedText = translated;
       } catch (err) {
         console.error('Jargon translation failed:', err);
         p.textContent = original;
@@ -45,7 +53,7 @@ export class JargonTranslationService {
     }
   }
 
-  private static async streamTranslation(element: HTMLElement, text: string, apiKey: string): Promise<void> {
+  private static async streamTranslation(element: HTMLElement, text: string, apiKey: string): Promise<string> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -70,6 +78,7 @@ export class JargonTranslationService {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let finalText = '';
 
     if (reader) {
       while (true) {
@@ -89,6 +98,7 @@ export class JargonTranslationService {
             const fragment = parsed.choices?.[0]?.delta?.content;
             if (fragment) {
               element.textContent += fragment;
+              finalText += fragment;
             }
           } catch (err) {
             console.error('Failed to parse SSE chunk', err, line);
@@ -96,5 +106,6 @@ export class JargonTranslationService {
         }
       }
     }
+    return finalText;
   }
 }

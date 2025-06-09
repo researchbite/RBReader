@@ -25,6 +25,11 @@
   font-family: system-ui, -apple-system, sans-serif;
   color: #333;
 }
+.reader-container.jargon-free {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  line-height: 1.8;
+  color: #111;
+}
 
 .reader-content {
   font-size: 1.2rem;

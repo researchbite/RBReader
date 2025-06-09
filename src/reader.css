@@ -34,6 +34,12 @@
   box-shadow: 0px 6px 12px 3px var(--paper-shadow-color);
 }
 
+.reader-container.jargon-free {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  line-height: 1.8;
+  color: #1a1a1a;
+}
+
 .reader-content {
   font-size: 1.125rem;
   line-height: 1.75;

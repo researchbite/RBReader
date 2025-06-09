@@ -152,11 +152,14 @@ export class ReaderOverlay {
         await StorageService.setJargonTranslatorEnabled(isEnabled);
 
         const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
+        const container = document.querySelector(SELECTORS.readerContainer) as HTMLElement | null;
         if (content && this.stateService.get('isOpen')) {
           if (isEnabled) {
             await JargonTranslationService.translateContent(content);
+            container?.classList.add('jargon-free');
           } else {
             JargonTranslationService.restoreOriginal(content);
+            container?.classList.remove('jargon-free');
           }
 
           // Re-apply bionic reading if enabled

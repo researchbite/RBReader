@@ -20,6 +20,7 @@ export const IMPORTANT_KEYWORDS = {
 export const SELECTORS = {
   readerOverlay: 'bionic-reader-overlay',
   readerContent: '.reader-content',
+  readerContainer: '.reader-container',
   statsButton: '#stats-button',
   statsPopup: '.stats-popup',
   bionicToggle: '#bionic-toggle-switch',

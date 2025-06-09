@@ -6,7 +6,6 @@
 import { StorageService } from './storage.service';
 
 export class JargonTranslationService {
-  private static originals = new WeakMap<HTMLElement, string>();
 
   /**
    * Translate all paragraphs in the container using streaming
@@ -21,7 +20,7 @@ export class JargonTranslationService {
     const paragraphs = Array.from(container.querySelectorAll('p')) as HTMLElement[];
     for (const p of paragraphs) {
       const original = p.textContent || '';
-      this.originals.set(p, original);
+      p.dataset.originalText = original;
       p.textContent = '';
 
       try {
@@ -39,7 +38,7 @@ export class JargonTranslationService {
   static restoreOriginal(container: HTMLElement): void {
     const paragraphs = Array.from(container.querySelectorAll('p')) as HTMLElement[];
     for (const p of paragraphs) {
-      const original = this.originals.get(p);
+      const original = p.dataset.originalText;
       if (original !== undefined) {
         p.textContent = original;
       }

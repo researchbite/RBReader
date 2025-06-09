@@ -84,14 +84,16 @@ async function showReader(): Promise<void> {
     timerService.startTimer();
     console.log('⏰ Timer started, reader opened');
     
-    // Trigger AI highlighting with a small delay to ensure DOM is ready
-    console.log('🎯 Scheduling AI highlighting...');
-    setTimeout(() => {
-      console.log('🎯 Starting AI highlighting after delay...');
-      console.log('📊 Content element children:', tempContainer.children.length);
-      console.log('📊 Content element HTML preview:', tempContainer.innerHTML.substring(0, 200) + '...');
-      AIHighlightingService.highlightImportantLines(tempContainer).catch(console.error);
-    }, TIMING.aiHighlightDelay);
+    if (stateService.get('isAutoHighlightEnabled')) {
+      // Trigger AI highlighting with a small delay to ensure DOM is ready
+      console.log('🎯 Scheduling AI highlighting...');
+      setTimeout(() => {
+        console.log('🎯 Starting AI highlighting after delay...');
+        console.log('📊 Content element children:', tempContainer.children.length);
+        console.log('📊 Content element HTML preview:', tempContainer.innerHTML.substring(0, 200) + '...');
+        AIHighlightingService.highlightImportantLines(tempContainer).catch(console.error);
+      }, TIMING.aiHighlightDelay);
+    }
   } catch (error) {
     console.error('❌ Error parsing article:', error);
   }

@@ -23,6 +23,7 @@ export const SELECTORS = {
   statsButton: '#stats-button',
   statsPopup: '.stats-popup',
   bionicToggle: '#bionic-toggle-switch',
+  autoHighlightToggle: '#auto-highlight-toggle-switch',
   closeButton: '.close-button',
   currentTime: '.current-time',
   totalTime: '.total-time',
@@ -36,6 +37,7 @@ export const SELECTORS = {
 export const STORAGE_KEYS = {
   openaiApiKey: 'openaiApiKey',
   bionicEnabled: 'bionicEnabled',
+  autoHighlightEnabled: 'autoHighlightEnabled',
   bionicReadingTime: 'bionicReadingTime',
   bionicReadingArticles: 'bionicReadingArticles'
 };

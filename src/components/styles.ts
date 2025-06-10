@@ -19,9 +19,27 @@ export const READER_STYLES = `
     padding: 2rem 0;
   }
 
+  /*
+   * Responsive Reader Container Design
+   * 
+   * This design adapts to all screen sizes using a combination of viewport width (vw) 
+   * and maximum pixel constraints to ensure optimal reading experience:
+   * 
+   * - 4K+ displays (3840px+): 70vw max, up to 1400px - Prevents overly wide text
+   * - 2K displays (2560-3839px): 75vw max, up to 1300px - Good for large monitors
+   * - Large displays/Mac 15" (1920-2559px): 80vw max, up to 1200px - Balanced width
+   * - Mac 13"/Standard desktop (1440-1919px): 85vw max, up to 1000px - Optimal for 13" Mac
+   * - Smaller desktop (1200-1439px): 88vw max, up to 900px - Efficient space usage
+   * - Laptop screens (1024-1199px): 90vw max, up to 800px - Compact but readable
+   * - Tablet landscape (768-1023px): 92vw max, up to 720px - Touch-friendly
+   * - Mobile/tablet portrait (<768px): 100vw - Full width for small screens
+   * 
+   * The min() function ensures the container never exceeds either the viewport 
+   * percentage or the pixel maximum, whichever is smaller.
+   */
   .reader-container {
     position: relative;
-    max-width: 680px;
+    max-width: min(90vw, 1200px);
     width: 100%;
     background: #f9f8f1;
     padding: 2rem 3rem;
@@ -169,7 +187,72 @@ export const READER_STYLES = `
     background: none;
     color: inherit;
   }
-  @media (max-width: 768px) {
+  /* 4K and Ultra-wide displays (3840px+) */
+  @media (min-width: 3840px) {
+    .reader-container {
+      max-width: min(70vw, 1400px);
+      padding: 3rem 4rem;
+    }
+  }
+
+  /* 2K displays and large monitors (2560px - 3839px) */
+  @media (min-width: 2560px) and (max-width: 3839px) {
+    .reader-container {
+      max-width: min(75vw, 1300px);
+      padding: 2.5rem 3.5rem;
+    }
+  }
+
+  /* Large displays and Mac 15-inch+ (1920px - 2559px) */
+  @media (min-width: 1920px) and (max-width: 2559px) {
+    .reader-container {
+      max-width: min(80vw, 1200px);
+    }
+  }
+
+  /* Standard desktop and Mac 13-inch (1440px - 1919px) */
+  @media (min-width: 1440px) and (max-width: 1919px) {
+    .reader-container {
+      max-width: min(85vw, 1000px);
+    }
+  }
+
+  /* Smaller desktop (1200px - 1439px) */
+  @media (min-width: 1200px) and (max-width: 1439px) {
+    .reader-container {
+      max-width: min(88vw, 900px);
+    }
+  }
+
+  /* Laptop screens (1024px - 1199px) */
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    .reader-container {
+      max-width: min(90vw, 800px);
+      padding: 2rem 2.5rem;
+    }
+  }
+
+  /* Tablet landscape (768px - 1023px) */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .reader-container {
+      max-width: min(92vw, 720px);
+      padding: 1.5rem 2rem;
+    }
+  }
+
+  /* Mobile and tablet portrait (max-width: 767px) */
+  @media (max-width: 767px) {
+    #bionic-reader-overlay {
+      padding: 0;
+    }
+
+    .reader-container {
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 1.5rem;
+      max-width: 100%;
+    }
     .reader-controls {
       top: 1.5rem;
       left: 1.5rem;

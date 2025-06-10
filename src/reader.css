@@ -19,7 +19,7 @@
 
 .reader-container {
   position: relative;
-  max-width: 680px;
+  max-width: min(90vw, 1200px);
   width: 100%;
   background: #f9f8f1;
   padding: 2rem 3rem;
@@ -160,7 +160,61 @@
   opacity: 0.8;
 }
 
-@media (max-width: 768px) {
+/* 4K and Ultra-wide displays (3840px+) */
+@media (min-width: 3840px) {
+  .reader-container {
+    max-width: min(70vw, 1400px);
+    padding: 3rem 4rem;
+  }
+}
+
+/* 2K displays and large monitors (2560px - 3839px) */
+@media (min-width: 2560px) and (max-width: 3839px) {
+  .reader-container {
+    max-width: min(75vw, 1300px);
+    padding: 2.5rem 3.5rem;
+  }
+}
+
+/* Large displays and Mac 15-inch+ (1920px - 2559px) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  .reader-container {
+    max-width: min(80vw, 1200px);
+  }
+}
+
+/* Standard desktop and Mac 13-inch (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .reader-container {
+    max-width: min(85vw, 1000px);
+  }
+}
+
+/* Smaller desktop (1200px - 1439px) */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .reader-container {
+    max-width: min(88vw, 900px);
+  }
+}
+
+/* Laptop screens (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .reader-container {
+    max-width: min(90vw, 800px);
+    padding: 2rem 2.5rem;
+  }
+}
+
+/* Tablet landscape (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .reader-container {
+    max-width: min(92vw, 720px);
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Mobile and tablet portrait (max-width: 767px) */
+@media (max-width: 767px) {
   #bionic-reader-overlay {
     padding: 0;
   }
@@ -170,6 +224,7 @@
     border-radius: 0;
     box-shadow: none;
     padding: 1.5rem;
+    max-width: 100%;
   }
   
   .reader-content {

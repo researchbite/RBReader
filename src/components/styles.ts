@@ -4,6 +4,47 @@
  */
 
 export const READER_STYLES = `
+  #bionic-reader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #eae8e2;
+    z-index: 999999;
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 2rem 0;
+  }
+
+  .reader-container {
+    position: relative;
+    max-width: 680px;
+    width: 100%;
+    background: #f9f8f1;
+    padding: 2rem 3rem;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-family: ui-serif;
+    color: #2c2c2c;
+    min-height: calc(100vh - 4rem);
+    display: flex;
+    flex-direction: column;
+    border-radius: 3px;
+    box-shadow: 0px 6px 12px 3px var(--paper-shadow-color);
+  }
+
+  .reader-container.jargon-free {
+    font-family: "Inter", "Segoe UI", sans-serif;
+    line-height: 1.8;
+    color: #1a1a1a;
+  }
+
+  :root {
+    --paper-shadow-color: rgba(0, 0, 0, 0.1);
+  }
   .reader-controls {
     position: absolute;
     top: 2rem;

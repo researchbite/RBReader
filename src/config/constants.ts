@@ -20,10 +20,12 @@ export const IMPORTANT_KEYWORDS = {
 export const SELECTORS = {
   readerOverlay: 'bionic-reader-overlay',
   readerContent: '.reader-content',
+  readerContainer: '.reader-container',
   statsButton: '#stats-button',
   statsPopup: '.stats-popup',
   bionicToggle: '#bionic-toggle-switch',
   autoHighlightToggle: '#auto-highlight-toggle-switch',
+  jargonToggle: '#jargon-toggle-switch',
   closeButton: '.close-button',
   currentTime: '.current-time',
   totalTime: '.total-time',
@@ -38,6 +40,7 @@ export const STORAGE_KEYS = {
   openaiApiKey: 'openaiApiKey',
   bionicEnabled: 'bionicEnabled',
   autoHighlightEnabled: 'autoHighlightEnabled',
+  jargonTranslatorEnabled: 'jargonTranslatorEnabled',
   bionicReadingTime: 'bionicReadingTime',
   bionicReadingArticles: 'bionicReadingArticles'
 };

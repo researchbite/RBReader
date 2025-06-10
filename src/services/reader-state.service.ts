@@ -18,6 +18,7 @@ export interface ReaderState {
   isStatsOpen: boolean;
   isBionicEnabled: boolean;
   isAutoHighlightEnabled: boolean;
+  isJargonTranslatorEnabled: boolean;
 }
 
 export class ReaderStateService {
@@ -37,7 +38,8 @@ export class ReaderStateService {
       historicalArticles: StorageService.getHistoricalArticles(),
       isStatsOpen: false,
       isBionicEnabled: false,
-      isAutoHighlightEnabled: false
+      isAutoHighlightEnabled: false,
+      isJargonTranslatorEnabled: false
     };
   }
 
@@ -93,6 +95,14 @@ export class ReaderStateService {
   async initializeAutoHighlightState(): Promise<void> {
     const enabled = await StorageService.getAutoHighlightEnabled();
     this.state.isAutoHighlightEnabled = enabled;
+  }
+
+  /**
+   * Initialize jargon translator state from storage
+   */
+  async initializeJargonTranslatorState(): Promise<void> {
+    const enabled = await StorageService.getJargonTranslatorEnabled();
+    this.state.isJargonTranslatorEnabled = enabled;
   }
 
   /**

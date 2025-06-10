@@ -46,6 +46,17 @@ export class StorageService {
   }
 
   /**
+   * Get jargon translator enabled state from Chrome storage
+   */
+  static async getJargonTranslatorEnabled(): Promise<boolean> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get([STORAGE_KEYS.jargonTranslatorEnabled], (result) => {
+        resolve(result[STORAGE_KEYS.jargonTranslatorEnabled] || false);
+      });
+    });
+  }
+
+  /**
    * Set bionic reading enabled state in Chrome storage
    */
   static async setBionicEnabled(enabled: boolean): Promise<void> {
@@ -60,6 +71,15 @@ export class StorageService {
   static async setAutoHighlightEnabled(enabled: boolean): Promise<void> {
     return new Promise((resolve) => {
       chrome.storage.sync.set({ [STORAGE_KEYS.autoHighlightEnabled]: enabled }, resolve);
+    });
+  }
+
+  /**
+   * Set jargon translator enabled state in Chrome storage
+   */
+  static async setJargonTranslatorEnabled(enabled: boolean): Promise<void> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.set({ [STORAGE_KEYS.jargonTranslatorEnabled]: enabled }, resolve);
     });
   }
 

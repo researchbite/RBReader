@@ -7,6 +7,7 @@ import { ReaderStateService } from '../services/reader-state.service';
 import { StorageService } from '../services/storage.service';
 import { BionicReadingService } from '../services/bionic-reading.service';
 import { AIHighlightingService } from '../services/ai-highlighting.service';
+import { JargonTranslationService } from '../services/jargon-translation.service';
 import { SELECTORS } from '../config/constants';
 import { injectStyles } from './styles';
 import { StatsPopup } from './stats-popup';
@@ -49,6 +50,13 @@ export class ReaderOverlay {
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="bionic-toggle-container jargon-toggle-container">
+            <label class="bionic-toggle-label">Jargon Translator</label>
+            <label class="bionic-toggle">
+              <input type="checkbox" id="jargon-toggle-switch">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
           <button class="icon-button close-button" title="Exit Reader Mode (Esc)">×</button>
         </div>
         <div class="reader-content"></div>
@@ -85,6 +93,13 @@ export class ReaderOverlay {
     const autoHighlightToggle = document.getElementById('auto-highlight-toggle-switch') as HTMLInputElement;
     if (autoHighlightToggle) {
       autoHighlightToggle.checked = this.stateService.get('isAutoHighlightEnabled');
+    }
+
+    // Initialize jargon translator state
+    await this.stateService.initializeJargonTranslatorState();
+    const jargonToggle = document.getElementById('jargon-toggle-switch') as HTMLInputElement;
+    if (jargonToggle) {
+      jargonToggle.checked = this.stateService.get('isJargonTranslatorEnabled');
     }
 
     // Setup event listeners
@@ -124,6 +139,33 @@ export class ReaderOverlay {
         const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
         if (content && this.stateService.get('isOpen') && isEnabled) {
           AIHighlightingService.highlightImportantLines(content).catch(console.error);
+        }
+      });
+    }
+
+    // Jargon translator toggle handler
+    const jargonToggle = document.getElementById('jargon-toggle-switch') as HTMLInputElement;
+    if (jargonToggle) {
+      jargonToggle.addEventListener('change', async (event) => {
+        const isEnabled = (event.target as HTMLInputElement).checked;
+        this.stateService.set('isJargonTranslatorEnabled', isEnabled);
+        await StorageService.setJargonTranslatorEnabled(isEnabled);
+
+        const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
+        const container = document.querySelector(SELECTORS.readerContainer) as HTMLElement | null;
+        if (content && this.stateService.get('isOpen')) {
+          if (isEnabled) {
+            await JargonTranslationService.translateContent(content);
+            container?.classList.add('jargon-free');
+          } else {
+            JargonTranslationService.restoreOriginal(content);
+            container?.classList.remove('jargon-free');
+          }
+
+          // Re-apply bionic reading if enabled
+          if (this.stateService.get('isBionicEnabled')) {
+            BionicReadingService.toggleBionicReading(content, true);
+          }
         }
       });
     }

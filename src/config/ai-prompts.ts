@@ -1,9 +1,9 @@
 /**
  * AI Prompts Configuration
- * Contains all prompts used for AI-powered article highlighting
+ * Contains all prompts used for AI-powered article highlighting and jargon translation
  */
 
-export const AI_PROMPTS = {
+export const AUTO_HIGHLIGHT_PROMPTS = {
   system: `You are an expert reader who identifies the most important and insightful sentences in articles. Your task is to:
 1. Carefully read and understand the entire article
 2. Identify the 5-10 most important sentences that contain key insights, main arguments, or crucial information
@@ -21,11 +21,24 @@ ${articleText}
 Output format: <hl prefix="..." suffix="...">Important sentence here</hl><hl prefix="..." suffix="...">Another important sentence</hl>`
 };
 
-export const AI_CONFIG = {
+export const JARGON_TRANSLATION_PROMPTS = {
+  system: `Rewrite the following academic text in plain language for a general audience (age 16-20). Avoid any jargons at all time and ensure the audience can understand the fundamentals. Make sure you return without any commentary text.`,
+
+  user: (text: string) => `${text}`
+};
+
+export const AUTO_HIGHLIGHT_CONFIG = {
   model: 'gpt-4.1',
   temperature: 0.7,
   maxTokens: 8096,
   minSentenceLength: 20,
+  stream: true // Enable streaming
+};
+
+export const JARGON_TRANSLATION_CONFIG = {
+  model: 'gpt-4.1',
+  temperature: 0.3,
+  maxTokens: 4096,
   stream: true // Enable streaming
 };
 

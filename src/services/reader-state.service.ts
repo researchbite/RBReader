@@ -85,24 +85,27 @@ export class ReaderStateService {
    * Initialize bionic enabled state from storage
    */
   async initializeBionicState(): Promise<void> {
-    const enabled = await StorageService.getBionicEnabled();
-    this.state.isBionicEnabled = enabled;
+    // Always start with bionic reading disabled
+    this.state.isBionicEnabled = false;
+    await StorageService.setBionicEnabled(false);
   }
 
   /**
    * Initialize auto highlight state from storage
    */
   async initializeAutoHighlightState(): Promise<void> {
-    const enabled = await StorageService.getAutoHighlightEnabled();
-    this.state.isAutoHighlightEnabled = enabled;
+    // Always start with auto highlight disabled
+    this.state.isAutoHighlightEnabled = false;
+    await StorageService.setAutoHighlightEnabled(false);
   }
 
   /**
    * Initialize jargon translator state from storage
    */
   async initializeJargonTranslatorState(): Promise<void> {
-    const enabled = await StorageService.getJargonTranslatorEnabled();
-    this.state.isJargonTranslatorEnabled = enabled;
+    // Always start with jargon translator disabled
+    this.state.isJargonTranslatorEnabled = false;
+    await StorageService.setJargonTranslatorEnabled(false);
   }
 
   /**

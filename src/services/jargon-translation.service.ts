@@ -4,6 +4,7 @@
  */
 
 import { StorageService } from './storage.service';
+import { JARGON_TRANSLATION_PROMPTS, JARGON_TRANSLATION_CONFIG } from '../config/ai-prompts';
 
 export class JargonTranslationService {
 
@@ -61,13 +62,14 @@ export class JargonTranslationService {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: JARGON_TRANSLATION_CONFIG.model,
         messages: [
-          { role: 'system', content: 'Rewrite the following academic text in plain language for a general audience.' },
-          { role: 'user', content: text }
+          { role: 'system', content: JARGON_TRANSLATION_PROMPTS.system },
+          { role: 'user', content: JARGON_TRANSLATION_PROMPTS.user(text) }
         ],
-        temperature: 0.3,
-        stream: true
+        temperature: JARGON_TRANSLATION_CONFIG.temperature,
+        max_tokens: JARGON_TRANSLATION_CONFIG.maxTokens,
+        stream: JARGON_TRANSLATION_CONFIG.stream
       })
     });
 

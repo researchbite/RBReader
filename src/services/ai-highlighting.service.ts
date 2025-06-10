@@ -3,7 +3,7 @@
  * Handles AI-powered important sentence highlighting
  */
 
-import { AI_PROMPTS, AI_CONFIG, HIGHLIGHT_ANIMATION } from '../config/ai-prompts';
+import { AUTO_HIGHLIGHT_PROMPTS, AUTO_HIGHLIGHT_CONFIG, HIGHLIGHT_ANIMATION } from '../config/ai-prompts';
 import { IMPORTANT_KEYWORDS } from '../config/constants';
 import { StorageService } from './storage.service';
 
@@ -120,14 +120,14 @@ export class AIHighlightingService {
             'Authorization': `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: AI_CONFIG.model,
+            model: AUTO_HIGHLIGHT_CONFIG.model,
             messages: [
-              { role: 'system', content: AI_PROMPTS.system },
-              { role: 'user', content: AI_PROMPTS.user(articleText) }
+              { role: 'system', content: AUTO_HIGHLIGHT_PROMPTS.system },
+              { role: 'user', content: AUTO_HIGHLIGHT_PROMPTS.user(articleText) }
             ],
-            temperature: AI_CONFIG.temperature,
-            max_tokens: AI_CONFIG.maxTokens,
-            stream: AI_CONFIG.stream
+            temperature: AUTO_HIGHLIGHT_CONFIG.temperature,
+            max_tokens: AUTO_HIGHLIGHT_CONFIG.maxTokens,
+            stream: AUTO_HIGHLIGHT_CONFIG.stream
           })
         });
 

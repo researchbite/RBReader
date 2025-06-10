@@ -135,6 +135,27 @@ export const READER_STYLES = `
   .bionic-toggle input:focus + .toggle-slider {
     box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.3);
   }
+  .translator-select {
+    margin-left: 8px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .settings-menu {
+    position: absolute;
+    right: 3rem;
+    top: calc(100% + 8px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
   .icon-button {
     width: 32px;
     height: 32px;

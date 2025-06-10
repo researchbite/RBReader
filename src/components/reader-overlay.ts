@@ -8,6 +8,7 @@ import { StorageService } from '../services/storage.service';
 import { BionicReadingService } from '../services/bionic-reading.service';
 import { AIHighlightingService } from '../services/ai-highlighting.service';
 import { JargonTranslationService } from '../services/jargon-translation.service';
+import { TranslatorLevel } from '../config/ai-prompts';
 import { SELECTORS } from '../config/constants';
 import { injectStyles } from './styles';
 import { StatsPopup } from './stats-popup';
@@ -36,26 +37,39 @@ export class ReaderOverlay {
               <path d="M6 6H14M6 10H14M6 14H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </button>
-          <div class="bionic-toggle-container">
-            <label class="bionic-toggle-label">Bionic Reading</label>
-            <label class="bionic-toggle">
-              <input type="checkbox" id="bionic-toggle-switch">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="bionic-toggle-container auto-highlight-toggle-container">
-            <label class="bionic-toggle-label">Auto Highlight</label>
-            <label class="bionic-toggle">
-              <input type="checkbox" id="auto-highlight-toggle-switch">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
           <div class="bionic-toggle-container jargon-toggle-container">
             <label class="bionic-toggle-label">Jargon Translator</label>
             <label class="bionic-toggle">
               <input type="checkbox" id="jargon-toggle-switch">
               <span class="toggle-slider"></span>
             </label>
+            <select id="translator-level-select" class="translator-select">
+              <option value="highSchool">High School</option>
+              <option value="college">College</option>
+              <option value="academia">Academia</option>
+            </select>
+          </div>
+          <button id="settings-button" class="icon-button settings-button" title="Settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 10 5.09V5a2 2 0 1 1 4 0v.09c0 .68.39 1.3 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06c-.41.41-.53 1-.33 1.54.21.54.74.9 1.33.9H21a2 2 0 1 1 0 4h-.09c-.59 0-1.12.36-1.33.9z" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+          <div class="settings-menu">
+            <div class="bionic-toggle-container">
+              <label class="bionic-toggle-label">Bionic Reading</label>
+              <label class="bionic-toggle">
+                <input type="checkbox" id="bionic-toggle-switch">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="bionic-toggle-container auto-highlight-toggle-container">
+              <label class="bionic-toggle-label">Auto Highlight</label>
+              <label class="bionic-toggle">
+                <input type="checkbox" id="auto-highlight-toggle-switch">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
           <button class="icon-button close-button" title="Exit Reader Mode (Esc)">×</button>
         </div>
@@ -100,6 +114,12 @@ export class ReaderOverlay {
     const jargonToggle = document.getElementById('jargon-toggle-switch') as HTMLInputElement;
     if (jargonToggle) {
       jargonToggle.checked = this.stateService.get('isJargonTranslatorEnabled');
+    }
+
+    await this.stateService.initializeTranslatorLevel();
+    const levelSelect = document.getElementById('translator-level-select') as HTMLSelectElement;
+    if (levelSelect) {
+      levelSelect.value = this.stateService.get('translatorLevel');
     }
 
     // Setup event listeners
@@ -155,7 +175,7 @@ export class ReaderOverlay {
         const container = document.querySelector(SELECTORS.readerContainer) as HTMLElement | null;
         if (content && this.stateService.get('isOpen')) {
           if (isEnabled) {
-            await JargonTranslationService.translateContent(content);
+            await JargonTranslationService.translateContent(content, this.stateService.get('translatorLevel'));
             container?.classList.add('jargon-free');
           } else {
             JargonTranslationService.restoreOriginal(content);
@@ -166,6 +186,41 @@ export class ReaderOverlay {
           if (this.stateService.get('isBionicEnabled')) {
             BionicReadingService.toggleBionicReading(content, true);
           }
+        }
+      });
+    }
+
+    const levelSelect = document.getElementById('translator-level-select') as HTMLSelectElement;
+    if (levelSelect) {
+      levelSelect.addEventListener('change', async (event) => {
+        const level = (event.target as HTMLSelectElement).value;
+        this.stateService.set('translatorLevel', level);
+        await StorageService.setTranslatorLevel(level);
+        if (this.stateService.get('isOpen') && this.stateService.get('isJargonTranslatorEnabled')) {
+          const content = document.querySelector(SELECTORS.readerContent) as HTMLElement;
+          if (content) {
+            JargonTranslationService.restoreOriginal(content);
+            await JargonTranslationService.translateContent(content, level as TranslatorLevel);
+            if (this.stateService.get('isBionicEnabled')) {
+              BionicReadingService.toggleBionicReading(content, true);
+            }
+          }
+        }
+      });
+    }
+
+    const settingsButton = document.getElementById('settings-button');
+    const settingsMenu = document.querySelector('.settings-menu') as HTMLElement | null;
+    if (settingsButton && settingsMenu) {
+      settingsButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const open = settingsMenu.style.display === 'block';
+        settingsMenu.style.display = open ? 'none' : 'block';
+      });
+      settingsMenu.addEventListener('click', (e) => e.stopPropagation());
+      document.addEventListener('click', () => {
+        if (settingsMenu.style.display === 'block') {
+          settingsMenu.style.display = 'none';
         }
       });
     }

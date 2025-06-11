@@ -72,8 +72,10 @@ export const READER_STYLES = `
     align-items: center;
     justify-content: flex-start;
     flex-wrap: nowrap;
+    gap: 16px;
     z-index: 10001;
     width: calc(100% - 6rem);
+    line-height: 1;
   }
   .bionic-toggle-container {
     display: flex;
@@ -91,6 +93,7 @@ export const READER_STYLES = `
     font-weight: 500;
     color: #2c2c2c;
     user-select: none;
+    text-transform: none;
   }
   .bionic-toggle {
     position: relative;
@@ -136,11 +139,28 @@ export const READER_STYLES = `
     box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.3);
   }
   .translator-select {
-    margin-left: 8px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    display: none;
+    padding: 4px 32px 4px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
     font-size: 14px;
+    height: 28px;
+    line-height: 19px;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%232c2c2c' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+    background-size: 12px 8px;
+    color: #2c2c2c;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .translator-select.show {
+    display: inline-block;
+  }
+  .translator-select:focus {
+    outline: none;
+    border-color: #8b7355;
+    box-shadow: 0 0 0 2px rgba(139, 115, 85, 0.25);
   }
   .settings-menu {
     position: absolute;
@@ -190,13 +210,18 @@ export const READER_STYLES = `
     border-radius: 8px !important;
   }
   .icon-button:hover {
-    background: rgba(0, 0, 0, 0.05);
-    transform: translateY(-1px);
+    background: none;
+    transform: translateY(-2px);
     box-shadow: none;
   }
   .icon-button:active {
     transform: translateY(0);
     box-shadow: none;
+  }
+  /* Fine-tune stats button hover separately if needed */
+  .stats-button:hover {
+    background: none;
+    transform: scale(1.05);
   }
   /* Ensure bionic strong tags don't interfere with highlights */
   .reader-content strong {

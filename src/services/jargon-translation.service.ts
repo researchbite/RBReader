@@ -51,6 +51,8 @@ export class JargonTranslationService {
       if (original !== undefined) {
         p.textContent = original;
       }
+      // Remove cached translation so it can regenerate with a new level
+      delete p.dataset.translatedText;
     }
   }
 

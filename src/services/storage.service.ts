@@ -57,6 +57,17 @@ export class StorageService {
   }
 
   /**
+   * Get translator level from Chrome storage
+   */
+  static async getTranslatorLevel(): Promise<string> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get([STORAGE_KEYS.translatorLevel], (result) => {
+        resolve(result[STORAGE_KEYS.translatorLevel] || 'highSchool');
+      });
+    });
+  }
+
+  /**
    * Set bionic reading enabled state in Chrome storage
    */
   static async setBionicEnabled(enabled: boolean): Promise<void> {
@@ -80,6 +91,15 @@ export class StorageService {
   static async setJargonTranslatorEnabled(enabled: boolean): Promise<void> {
     return new Promise((resolve) => {
       chrome.storage.sync.set({ [STORAGE_KEYS.jargonTranslatorEnabled]: enabled }, resolve);
+    });
+  }
+
+  /**
+   * Set translator level in Chrome storage
+   */
+  static async setTranslatorLevel(level: string): Promise<void> {
+    return new Promise((resolve) => {
+      chrome.storage.sync.set({ [STORAGE_KEYS.translatorLevel]: level }, resolve);
     });
   }
 

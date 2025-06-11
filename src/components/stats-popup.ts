@@ -40,6 +40,20 @@ export class StatsPopup {
         <div class="history-list" style="display: none;">
           <div class="history-urls"></div>
         </div>
+        <div class="bionic-toggle-container" style="margin-top:8px;">
+          <label class="bionic-toggle-label">Bionic Reading</label>
+          <label class="bionic-toggle">
+            <input type="checkbox" id="bionic-toggle-switch">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="bionic-toggle-container auto-highlight-toggle-container">
+          <label class="bionic-toggle-label">Auto Highlight</label>
+          <label class="bionic-toggle">
+            <input type="checkbox" id="auto-highlight-toggle-switch">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     `;
 
@@ -67,6 +81,9 @@ export class StatsPopup {
         }
       });
     }
+
+    // Prevent clicks inside the popup from closing it via the stats button handler
+    popup.addEventListener('click', (e) => e.stopPropagation());
   }
 
   /**

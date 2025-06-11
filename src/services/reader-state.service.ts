@@ -4,6 +4,7 @@
  */
 
 import { StorageService, HistoricalArticle } from './storage.service';
+import { TranslatorLevel } from '../config/ai-prompts';
 
 export interface ReaderState {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export interface ReaderState {
   isBionicEnabled: boolean;
   isAutoHighlightEnabled: boolean;
   isJargonTranslatorEnabled: boolean;
+  translatorLevel: TranslatorLevel;
 }
 
 export class ReaderStateService {
@@ -39,7 +41,8 @@ export class ReaderStateService {
       isStatsOpen: false,
       isBionicEnabled: false,
       isAutoHighlightEnabled: false,
-      isJargonTranslatorEnabled: false
+      isJargonTranslatorEnabled: false,
+      translatorLevel: 'highSchool'
     };
   }
 
@@ -106,6 +109,13 @@ export class ReaderStateService {
     // Always start with jargon translator disabled
     this.state.isJargonTranslatorEnabled = false;
     await StorageService.setJargonTranslatorEnabled(false);
+  }
+
+  /**
+   * Initialize translator level from storage
+   */
+  async initializeTranslatorLevel(): Promise<void> {
+    this.state.translatorLevel = await StorageService.getTranslatorLevel() as TranslatorLevel;
   }
 
   /**

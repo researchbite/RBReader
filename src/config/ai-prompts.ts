@@ -21,10 +21,21 @@ ${articleText}
 Output format: <hl prefix="..." suffix="...">Important sentence here</hl><hl prefix="..." suffix="...">Another important sentence</hl>`
 };
 
-export const JARGON_TRANSLATION_PROMPTS = {
-  system: `Rewrite the following academic text in plain language for a general audience (age 16-20). Avoid any jargons at all time and ensure the audience can understand the fundamentals. Make sure you return without any commentary text.`,
+export type TranslatorLevel = 'highSchool' | 'college' | 'academia';
 
-  user: (text: string) => `${text}`
+export const JARGON_TRANSLATION_PROMPTS: Record<TranslatorLevel, { system: string; user: (text: string) => string }> = {
+  highSchool: {
+    system: `Rewrite the following text in simple language for a high school student (age 14-18). Remove complex jargon and keep sentences short and clear without extra commentary.`,
+    user: (text: string) => `${text}`
+  },
+  college: {
+    system: `Rewrite the following text for readers with some college experience. Use accessible language while keeping key details intact. Do not add any commentary.`,
+    user: (text: string) => `${text}`
+  },
+  academia: {
+    system: `Clarify the following text for an academic audience. Reduce unnecessary jargon but preserve technical nuance and formal tone. Return only the rewritten text.`,
+    user: (text: string) => `${text}`
+  }
 };
 
 export const AUTO_HIGHLIGHT_CONFIG = {

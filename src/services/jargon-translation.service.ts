@@ -4,14 +4,14 @@
  */
 
 import { StorageService } from './storage.service';
-import { JARGON_TRANSLATION_PROMPTS, JARGON_TRANSLATION_CONFIG } from '../config/ai-prompts';
+import { JARGON_TRANSLATION_PROMPTS, JARGON_TRANSLATION_CONFIG, TranslatorLevel } from '../config/ai-prompts';
 
 export class JargonTranslationService {
 
   /**
    * Translate all paragraphs in the container using streaming
    */
-  static async translateContent(container: HTMLElement): Promise<void> {
+  static async translateContent(container: HTMLElement, level: TranslatorLevel): Promise<void> {
     const apiKey = await StorageService.getOpenAIApiKey();
     if (!apiKey) {
       console.warn('OpenAI API key not configured');
@@ -32,7 +32,7 @@ export class JargonTranslationService {
 
       p.textContent = '';
       try {
-        const translated = await this.streamTranslation(p, original, apiKey);
+        const translated = await this.streamTranslation(p, original, apiKey, level);
         p.dataset.translatedText = translated;
       } catch (err) {
         console.error('Jargon translation failed:', err);
@@ -51,10 +51,12 @@ export class JargonTranslationService {
       if (original !== undefined) {
         p.textContent = original;
       }
+      // Remove cached translation so it can regenerate with a new level
+      delete p.dataset.translatedText;
     }
   }
 
-  private static async streamTranslation(element: HTMLElement, text: string, apiKey: string): Promise<string> {
+  private static async streamTranslation(element: HTMLElement, text: string, apiKey: string, level: TranslatorLevel): Promise<string> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -64,8 +66,8 @@ export class JargonTranslationService {
       body: JSON.stringify({
         model: JARGON_TRANSLATION_CONFIG.model,
         messages: [
-          { role: 'system', content: JARGON_TRANSLATION_PROMPTS.system },
-          { role: 'user', content: JARGON_TRANSLATION_PROMPTS.user(text) }
+          { role: 'system', content: JARGON_TRANSLATION_PROMPTS[level].system },
+          { role: 'user', content: JARGON_TRANSLATION_PROMPTS[level].user(text) }
         ],
         temperature: JARGON_TRANSLATION_CONFIG.temperature,
         max_tokens: JARGON_TRANSLATION_CONFIG.maxTokens,

@@ -26,6 +26,9 @@ export const SELECTORS = {
   bionicToggle: '#bionic-toggle-switch',
   autoHighlightToggle: '#auto-highlight-toggle-switch',
   jargonToggle: '#jargon-toggle-switch',
+  translatorLevelSelect: '#translator-level-select',
+  settingsButton: '#settings-button',
+  settingsMenu: '.settings-menu',
   closeButton: '.close-button',
   currentTime: '.current-time',
   totalTime: '.total-time',
@@ -41,6 +44,7 @@ export const STORAGE_KEYS = {
   bionicEnabled: 'bionicEnabled',
   autoHighlightEnabled: 'autoHighlightEnabled',
   jargonTranslatorEnabled: 'jargonTranslatorEnabled',
+  translatorLevel: 'translatorLevel',
   bionicReadingTime: 'bionicReadingTime',
   bionicReadingArticles: 'bionicReadingArticles'
 };

@@ -8,6 +8,7 @@ The Jargon Translator rewrites complex paragraphs in plain language and remember
 - **Caching**: Translated paragraphs are stored in `data-translated-text` attributes so switching the toggle doesn't retranslate.
 - **Restoration**: Original text is kept in `data-original-text` attributes, allowing the translator to revert to the exact source wording.
 - **Design**: When enabled the reader container receives a `.jargon-free` class that applies a clean sans-serif font and relaxed line height.
+- **Levels**: Select *High School*, *College*, or *Academia* to control how much the text is simplified.
 
 ## Implementation Details
 

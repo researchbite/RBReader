@@ -9,6 +9,7 @@ import { TimerService } from './services/timer.service';
 import { BionicReadingService } from './services/bionic-reading.service';
 import { AIHighlightingService } from './services/ai-highlighting.service';
 import { StorageService } from './services/storage.service';
+import { ManualHighlightService } from './services/manual-highlight.service';
 import { ReaderOverlay } from './components/reader-overlay';
 import { TIMING, SELECTORS } from './config/constants';
 
@@ -71,6 +72,10 @@ async function showReader(): Promise<void> {
     }
 
     content.appendChild(tempContainer);
+
+    // Initialize manual highlighting
+    ManualHighlightService.init(tempContainer);
+    ManualHighlightService.applyStoredHighlights(tempContainer);
     
     // Add current article to history
     stateService.addArticleToHistory(

@@ -46,7 +46,8 @@ export const STORAGE_KEYS = {
   jargonTranslatorEnabled: 'jargonTranslatorEnabled',
   translatorLevel: 'translatorLevel',
   bionicReadingTime: 'bionicReadingTime',
-  bionicReadingArticles: 'bionicReadingArticles'
+  bionicReadingArticles: 'bionicReadingArticles',
+  manualHighlights: 'manualHighlights'
 };
 
 // Timing constants

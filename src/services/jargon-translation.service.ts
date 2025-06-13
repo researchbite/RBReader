@@ -42,6 +42,11 @@ export class JargonTranslationService {
       if (getComputedStyle(p).position === 'static') {
         p.style.position = 'relative';
       }
+      const computed = getComputedStyle(p);
+      o.style.fontSize = computed.fontSize;
+      o.style.lineHeight = computed.lineHeight;
+      o.style.fontFamily = computed.fontFamily;
+
       p.appendChild(o);
     }
     return o;
@@ -68,10 +73,11 @@ export class JargonTranslationService {
 
     try {
       const translated = await this.streamTranslation(overlay, original, apiKey, level);
-      overlay.classList.add('done');
-      await this.wait(300);
       p.textContent = translated;
       p.dataset.translatedText = translated;
+
+      overlay.classList.add('done');
+      await this.wait(300);
       overlay.remove();
       p.classList.add('jf-flash');
     } catch (err) {

@@ -64,11 +64,12 @@ export const READER_STYLES = `
     position: absolute;
     inset: 0;
     pointer-events: none;
-    font-family: "Inter", sans-serif;
+    font-family: sans-serif;
     white-space: pre-wrap;
     opacity: 0;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(6px);
     transition: opacity .15s linear, backdrop-filter .2s;
+    border-radius: 0.25rem;
   }
   .jf-overlay.done {
     opacity: 1;

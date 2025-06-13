@@ -1,4 +1,4 @@
-console.log('🔧 Research Bites background script loaded');
+console.log('🔧 Jargon Translator background script loaded');
 
 /**
  * Check if OpenAI API key is configured, and open options page if not

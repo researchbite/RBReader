@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Research Bites",
+  "name": "Jargon Translator",
   "version": "1.0.0",
-  "description": "Transform web content into a focused reading format using bionic highlighting techniques",
+  "description": "Transform web content into a focused reading format using bionic highlighting techniques. Jargon Translator from researchbites.com",
   "permissions": [
     "activeTab",
     "scripting"

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Research Bites",
+  "name": "Jargon Translator",
   "version": "1.0.2",
-  "description": "Transform web content into a focused reading format using bionic highlighting techniques",
+  "description": "Transform web content into a focused reading format using bionic highlighting techniques. Jargon Translator from researchbites.com",
   "permissions": [
     "activeTab",
     "scripting",
@@ -24,7 +24,7 @@
       "48": "icons/rb-logo-48.png",
       "128": "icons/rb-logo-128.png"
     },
-    "default_title": "Research Bites (⌘+⇧+B)"
+    "default_title": "Jargon Translator (⌘+⇧+B)"
   },
   "icons": {
     "16": "icons/rb-logo-16.png",

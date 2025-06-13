@@ -1,6 +1,6 @@
 /**
  * Styles Component
- * Contains all CSS styles for the Research Bites extension
+ * Contains all CSS styles for the Jargon Translator extension
  */
 
 export const READER_STYLES = `

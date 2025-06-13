@@ -8,9 +8,6 @@ import { JARGON_TRANSLATION_PROMPTS, JARGON_TRANSLATION_CONFIG, TranslatorLevel 
 
 export class JargonTranslationService {
 
-  /**
-   * Translate all paragraphs in the container using streaming
-   */
   static async translateContent(container: HTMLElement, level: TranslatorLevel): Promise<void> {
     const apiKey = await StorageService.getOpenAIApiKey();
     if (!apiKey) {
@@ -20,30 +17,10 @@ export class JargonTranslationService {
 
     const paragraphs = Array.from(container.querySelectorAll('p')) as HTMLElement[];
     for (const p of paragraphs) {
-      const original = p.textContent || '';
-      if (!p.dataset.originalText) {
-        p.dataset.originalText = original;
-      }
-
-      if (p.dataset.translatedText) {
-        p.textContent = p.dataset.translatedText;
-        continue;
-      }
-
-      p.textContent = '';
-      try {
-        const translated = await this.streamTranslation(p, original, apiKey, level);
-        p.dataset.translatedText = translated;
-      } catch (err) {
-        console.error('Jargon translation failed:', err);
-        p.textContent = original;
-      }
+      await this.translateParagraph(p, apiKey, level);
     }
   }
 
-  /**
-   * Restore original paragraph text
-   */
   static restoreOriginal(container: HTMLElement): void {
     const paragraphs = Array.from(container.querySelectorAll('p')) as HTMLElement[];
     for (const p of paragraphs) {
@@ -51,8 +28,56 @@ export class JargonTranslationService {
       if (original !== undefined) {
         p.textContent = original;
       }
-      // Remove cached translation so it can regenerate with a new level
+      p.querySelector('.jf-overlay')?.remove();
+      p.classList.remove('jf-flash');
       delete p.dataset.translatedText;
+    }
+  }
+
+  private static ensureOverlay(p: HTMLElement): HTMLSpanElement {
+    let o = p.querySelector('.jf-overlay') as HTMLSpanElement | null;
+    if (!o) {
+      o = document.createElement('span');
+      o.className = 'jf-overlay';
+      if (getComputedStyle(p).position === 'static') {
+        p.style.position = 'relative';
+      }
+      p.appendChild(o);
+    }
+    return o;
+  }
+
+  private static wait(ms: number): Promise<void> {
+    return new Promise((res) => setTimeout(res, ms));
+  }
+
+  private static async translateParagraph(p: HTMLElement, apiKey: string, level: TranslatorLevel): Promise<void> {
+    const original = p.textContent || '';
+    if (!p.dataset.originalText) {
+      p.dataset.originalText = original;
+    }
+
+    if (p.dataset.translatedText) {
+      p.textContent = p.dataset.translatedText;
+      p.classList.add('jf-flash');
+      return;
+    }
+
+    const overlay = this.ensureOverlay(p);
+    overlay.textContent = '';
+
+    try {
+      const translated = await this.streamTranslation(overlay, original, apiKey, level);
+      overlay.classList.add('done');
+      await this.wait(300);
+      p.textContent = translated;
+      p.dataset.translatedText = translated;
+      overlay.remove();
+      p.classList.add('jf-flash');
+    } catch (err) {
+      console.error('Jargon translation failed:', err);
+      overlay.remove();
+      p.textContent = original;
     }
   }
 
@@ -83,6 +108,15 @@ export class JargonTranslationService {
     const decoder = new TextDecoder();
     let buffer = '';
     let finalText = '';
+    let flushHandle = 0;
+    let pending = '';
+
+    const flush = () => {
+      element.textContent += pending;
+      pending = '';
+      flushHandle = 0;
+      element.style.opacity = '1';
+    };
 
     if (reader) {
       while (true) {
@@ -101,8 +135,11 @@ export class JargonTranslationService {
             const parsed = JSON.parse(data);
             const fragment = parsed.choices?.[0]?.delta?.content;
             if (fragment) {
-              element.textContent += fragment;
+              pending += fragment;
               finalText += fragment;
+              if (!flushHandle) {
+                flushHandle = requestAnimationFrame(flush);
+              }
             }
           } catch (err) {
             console.error('Failed to parse SSE chunk', err, line);
@@ -110,6 +147,8 @@ export class JargonTranslationService {
         }
       }
     }
+
+    if (pending) flush();
     return finalText;
   }
 }

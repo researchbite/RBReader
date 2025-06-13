@@ -4,7 +4,7 @@ The Jargon Translator rewrites complex paragraphs in plain language and remember
 
 ## Overview
 
-- **Paragraph streaming**: Each paragraph is sent to OpenAI's API and replaced in place as the response streams back. Users see text update live.
+- **Paragraph streaming**: Each paragraph is overlaid with a translucent span while tokens stream in from OpenAI. The original text stays visible until the stream finishes, then it is seamlessly replaced.
 - **Caching**: Translated paragraphs are stored in `data-translated-text` attributes so switching the toggle doesn't retranslate.
 - **Restoration**: Original text is kept in `data-original-text` attributes, allowing the translator to revert to the exact source wording.
 - **Design**: When enabled the reader container receives a `.jargon-free` class that applies a clean sans-serif font and relaxed line height.
@@ -21,8 +21,8 @@ The Jargon Translator rewrites complex paragraphs in plain language and remember
    - For each paragraph:
      1. Store its original text in `data-original-text` if not already saved.
      2. If a translated version exists in `data-translated-text`, apply it immediately.
-     3. Otherwise call OpenAI's chat API with `stream: true` and progressively update the paragraph while reading the SSE response.
-     4. Save the final translated text in `data-translated-text` for caching.
+      3. Otherwise call OpenAI's chat API with `stream: true`. Incoming tokens append to an absolutely positioned overlay above the paragraph.
+      4. Once streaming completes, replace the paragraph text with the overlay content and cache it in `data-translated-text`.
 
 3. **Restoring Original Text**
    - When the toggle is disabled, `restoreOriginal()` replaces paragraph text with the `data-original-text` values.
@@ -34,6 +34,6 @@ The Jargon Translator rewrites complex paragraphs in plain language and remember
 
 1. Open any article and launch Research Bites reader mode.
 2. Enable the *Jargon Translator* toggle in the control bar.
-3. Watch as each paragraph is rewritten live. Toggle off to return to the original article instantly.
+3. Watch the overlayed translation stream in and replace the paragraph when complete. Toggle off to return to the original instantly.
 
 This feature helps make dense academic writing more approachable while respecting the original content.

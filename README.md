@@ -6,7 +6,7 @@ Research Bites is a browser extension that presents articles in a clean overlay 
 
 - **Bionic Reading** – emphasises the first letters of words for easier scanning.
 - **AI-Powered Highlighting** – uses OpenAI to identify and highlight the most important sentences in articles.
-- **Jargon Translator** – rewrites complex paragraphs in plain language with selectable levels (High School, College, Academia) using your OpenAI API key and remembers translations for instant toggling.
+- **Jargon Translator** – overlays a live plain-language stream on each paragraph and swaps in the final text. Supports High School, College and Academia levels and caches results for instant toggling.
 - **Reading Statistics** – tracks reading time and maintains a history of articles read.
 - Extracts readable content using Mozilla's Readability library.
 - Distraction-free overlay with customizable reading experience.
@@ -106,7 +106,7 @@ Emphasizes the beginning of words to help readers scan text more efficiently. Ca
 Uses OpenAI's GPT-4 mini model to identify 5-10 most important sentences in an article. Falls back to keyword-based highlighting if API is unavailable.
 
 ### Jargon Translator
-Streams simplified versions of each paragraph using the same OpenAI API key. Choose between **High School**, **College**, and **Academia** levels in the reader controls. Once a paragraph is translated it is cached so subsequent toggles are instant. Enabling the translator also applies a clean sans-serif font for better readability.
+Each paragraph receives a translucent overlay while tokens stream in from OpenAI. When the stream ends, the plain-language version replaces the original. Choose between **High School**, **College**, and **Academia** levels. Translations are cached so later toggles are instant, and enabling the translator also applies a clean sans-serif font for better readability.
 
 ### Reading Statistics
 - Tracks time spent reading current article

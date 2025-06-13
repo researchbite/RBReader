@@ -60,6 +60,30 @@ export const READER_STYLES = `
     color: #1a1a1a;
   }
 
+  .jf-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    font-family: "Inter", sans-serif;
+    white-space: pre-wrap;
+    opacity: 0;
+    backdrop-filter: blur(2px);
+    transition: opacity .15s linear, backdrop-filter .2s;
+  }
+  .jf-overlay.done {
+    opacity: 1;
+    backdrop-filter: none;
+  }
+
+  @keyframes jfFlash {
+    0% { box-shadow: 0 0 0 0 #00b17600; }
+    50% { box-shadow: 0 0 0 6px #00b17640; }
+    100% { box-shadow: 0 0 0 0 #00b17600; }
+  }
+  .jf-flash {
+    animation: jfFlash .8s ease-out;
+  }
+
   :root {
     --paper-shadow-color: rgba(0, 0, 0, 0.1);
   }

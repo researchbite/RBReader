@@ -1,6 +1,6 @@
 /**
  * Application Constants
- * Contains all constants used throughout the Research Bites extension
+ * Contains all constants used throughout the Jargon Translator extension
  */
 
 // Common words to skip in bionic reading

@@ -32,7 +32,7 @@ The Jargon Translator rewrites complex paragraphs in plain language and remember
 
 ## Usage
 
-1. Open any article and launch Research Bites reader mode.
+1. Open any article and launch Jargon Translator reader mode.
 2. Enable the *Jargon Translator* toggle in the control bar.
 3. Watch as each paragraph is rewritten live. Toggle off to return to the original article instantly.
 

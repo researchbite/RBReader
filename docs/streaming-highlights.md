@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Research Bites extension now supports streaming AI highlights with beautiful animations. Instead of waiting for all highlights to be processed, users can see important sentences being highlighted in real-time as the AI identifies them.
+The Jargon Translator extension now supports streaming AI highlights with beautiful animations. Instead of waiting for all highlights to be processed, users can see important sentences being highlighted in real-time as the AI identifies them.
 
 ## Key Changes
 
@@ -108,7 +108,7 @@ private static extractHighlights(content: string): string[] {
 Use the included `test-streaming.html` file to test the feature:
 
 1. Open the test file in Chrome
-2. Click the Research Bites extension icon
+2. Click the Jargon Translator extension icon
 3. Watch as highlights appear one by one with animations
 4. Hover over highlights to see interactive effects
 

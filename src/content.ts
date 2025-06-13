@@ -1,5 +1,5 @@
 /**
- * Research Bites Extension - Content Script
+ * Jargon Translator Extension - Content Script
  * Main entry point for the extension
  */
 
@@ -103,7 +103,7 @@ async function showReader(): Promise<void> {
  * Initialize the extension
  */
 async function initializeExtension(): Promise<void> {
-  console.log('🏁 Initializing Research Bites extension...');
+  console.log('🏁 Initializing Jargon Translator extension...');
   
   try {
     await readerOverlay.initialize();

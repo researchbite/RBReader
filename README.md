@@ -1,6 +1,6 @@
-# Research Bites
+# Jargon Translator
 
-Research Bites is a browser extension that presents articles in a clean overlay and highlights the beginning of each word to aid focus. It is built with TypeScript and Mozilla's Readability library.
+Jargon Translator from [researchbites.com](https://researchbites.com) is a browser extension that presents articles in a clean overlay and highlights the beginning of each word to aid focus. It is built with TypeScript and Mozilla's Readability library.
 
 ## Features
 
@@ -41,7 +41,7 @@ src/
 Additional files:
 - `manifest.json` – Chrome extension manifest
 - `webpack.config.js` – Build configuration
-- `research-bites-extension/` – Pre-built version of the extension
+- `jargon-translator-extension/` – Pre-built version of the extension
 
 ## Development
 

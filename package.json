@@ -1,12 +1,12 @@
 {
-  "name": "research-bites-extension",
+  "name": "jargon-translator-extension",
   "version": "1.0.0",
-  "description": "Research Bites browser extension with Bionic Reading. Upcoming features include an AI auto highlighter and jargon free translator.",
+  "description": "Jargon Translator browser extension with Bionic Reading. Upcoming features include an AI auto highlighter and jargon free translator.",
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "clean": "rm -rf dist/* && rm -f research-bites-extension.zip",
-    "package": "npm run clean && npm run build && cd dist && zip -r ../research-bites-extension.zip *",
+    "clean": "rm -rf dist/* && rm -f jargon-translator-extension.zip",
+    "package": "npm run clean && npm run build && cd dist && zip -r ../jargon-translator-extension.zip *",
     "build:prod": "NODE_ENV=production npm run package"
   },
   "dependencies": {

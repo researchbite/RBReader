@@ -1,4 +1,4 @@
-// Options page functionality for Research Bites Extension
+// Options page functionality for Jargon Translator Extension
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('optionsForm');

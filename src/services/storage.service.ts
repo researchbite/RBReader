@@ -149,4 +149,33 @@ export class StorageService {
       this.setHistoricalArticles(articles);
     }
   }
-} 
+
+  /**
+   * Get manual highlights for a URL from localStorage
+   */
+  static getManualHighlights(url: string): string[] {
+    try {
+      return JSON.parse(localStorage.getItem(`${STORAGE_KEYS.manualHighlights}:${url}`) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Save manual highlights for a URL to localStorage
+   */
+  static setManualHighlights(url: string, highlights: string[]): void {
+    localStorage.setItem(`${STORAGE_KEYS.manualHighlights}:${url}`, JSON.stringify(highlights));
+  }
+
+  /**
+   * Add a manual highlight to a URL
+   */
+  static addManualHighlight(url: string, text: string): void {
+    const highlights = this.getManualHighlights(url);
+    if (!highlights.includes(text)) {
+      highlights.push(text);
+      this.setManualHighlights(url, highlights);
+    }
+  }
+}

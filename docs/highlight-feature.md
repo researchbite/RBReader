@@ -35,3 +35,9 @@ The extension automatically highlights key sentences when you enter the reader m
 - Works alongside bionic reading feature without conflicts
 - Graceful degradation with simulation fallback
 
+## Manual Highlighting
+
+- Select any text in reader mode to reveal a **Highlight** button
+- Clicking the button wraps the selection in `<mark class="user-highlight">`
+- Highlights are saved per URL so they reappear next time you open the article
+

@@ -18,6 +18,36 @@ const timerService = new TimerService();
 const readerOverlay = new ReaderOverlay();
 
 /**
+ * Display provided HTML in the reader overlay
+ */
+function showHtmlReader(html: string, title: string): void {
+  const content = readerOverlay.getContentElement();
+  if (!content) {
+    console.error('❌ Reader content container not found');
+    return;
+  }
+
+  content.innerHTML = '';
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  if (stateService.get('isBionicEnabled')) {
+    BionicReadingService.applyBionicReadingToHTML(container);
+  }
+
+  if (title) {
+    const titleEl = document.createElement('h1');
+    titleEl.className = 'reader-title';
+    titleEl.textContent = title;
+    content.appendChild(titleEl);
+  }
+  content.appendChild(container);
+
+  readerOverlay.show();
+  timerService.updateStats();
+  timerService.startTimer();
+}
+
+/**
  * Show the reader mode
  */
 async function showReader(): Promise<void> {
@@ -137,6 +167,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       timerService.pauseTimer();
       console.log('✅ Reader closed');
     }
+  }
+
+  if (message.type === 'SHOW_READER') {
+    console.log('📰 Displaying parsed PDF content');
+    showHtmlReader(message.html, message.title);
   }
   return false;
 });

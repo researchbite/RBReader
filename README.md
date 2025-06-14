@@ -8,6 +8,7 @@ Jargon Translator from [researchbites.com](https://researchbites.com) is a brows
 - **AI-Powered Highlighting** – uses OpenAI to identify and highlight the most important sentences in articles.
 - **Jargon Translator** – overlays a live plain-language stream on each paragraph and swaps in the final text. Supports High School, College and Academia levels and caches results for instant toggling.
 - **Reading Statistics** – tracks reading time and maintains a history of articles read.
+- **PDF Reader Mode** – automatically converts PDF files to a clean reader view.
 - Extracts readable content using Mozilla's Readability library.
 - Distraction-free overlay with customizable reading experience.
 - Keyboard shortcuts (Esc to exit) and toolbar icon for quick access.
@@ -49,6 +50,7 @@ Additional files:
    ```bash
    npm install
    ```
+   This installs `pdfjs-dist` along with other packages for PDF reader mode.
 
 2. Build the extension:
    ```bash
@@ -113,3 +115,6 @@ Each paragraph receives a translucent overlay while tokens stream in from OpenAI
 - Maintains total reading time across all articles
 - Stores reading history with article titles and URLs
 - Accessible via the stats button in the reader interface
+
+### PDF Reader Mode
+When navigating to a PDF file, the extension fetches the document and parses it offscreen using `pdfjs-dist`. The extracted text is processed with Mozilla's Readability algorithm and displayed in the same overlay used for normal webpages.

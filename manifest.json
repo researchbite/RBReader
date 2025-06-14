@@ -12,8 +12,8 @@
   "commands": {
     "toggle-reader": {
       "suggested_key": {
-        "default": "Ctrl+Shift+B",
-        "mac": "Command+Shift+B"
+        "default": "Ctrl+Alt+R",
+        "mac": "Command+Option+R"
       },
       "description": "Toggle reader mode"
     }
@@ -24,7 +24,7 @@
       "48": "icons/rb-logo-48.png",
       "128": "icons/rb-logo-128.png"
     },
-    "default_title": "Jargon Translator (⌘+⇧+B)"
+    "default_title": "Jargon Translator (⌘+⌥+R)"
   },
   "icons": {
     "16": "icons/rb-logo-16.png",

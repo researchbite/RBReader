@@ -74,4 +74,28 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
   if (command === 'toggle-reader' && tab?.id) {
     await handleExtensionActivation(tab);
   }
-}); 
+});
+
+/** Ensure offscreen document exists */
+async function ensureOffscreen(): Promise<void> {
+  const hasDoc = await (chrome.offscreen as any).hasDocument?.();
+  if (!hasDoc) {
+    await chrome.offscreen.createDocument({
+      url: chrome.runtime.getURL('offscreen.html'),
+      reasons: [chrome.offscreen.Reason.DOM_PARSER],
+      justification: 'Parse PDF and run Readability'
+    });
+  }
+}
+
+// Handle PDF pages automatically
+chrome.webNavigation.onCompleted.addListener(async ({ tabId, url }) => {
+  if (!url || !url.match(/\.pdf($|\?)/i)) return;
+  try {
+    const pdfBuf = await fetch(url).then((r) => r.arrayBuffer());
+    await ensureOffscreen();
+    chrome.runtime.sendMessage({ type: 'PARSE_PDF', pdfBuf, url, tabId });
+  } catch (err) {
+    console.error('Failed to process PDF', err);
+  }
+});

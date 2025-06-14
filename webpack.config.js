@@ -6,6 +6,7 @@ module.exports = {
   entry: {
     content: './src/content.ts',
     background: './src/background.ts',
+    offscreen: './src/offscreen.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -34,7 +35,8 @@ module.exports = {
         { from: 'src/reader.css' },
         { from: 'src/icons', to: 'icons' },
         { from: 'src/options.html', to: 'options.html' },
-        { from: 'src/options.js', to: 'options.js' }
+        { from: 'src/options.js', to: 'options.js' },
+        { from: 'public/offscreen.html', to: 'offscreen.html' }
       ],
     }),
   ],

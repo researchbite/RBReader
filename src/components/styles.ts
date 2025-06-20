@@ -258,6 +258,9 @@ export const READER_STYLES = `
     background: none;
     color: inherit;
   }
+  mark.user-highlight {
+    background-color: #ffeb3b;
+  }
   /* 4K and Ultra-wide displays (3840px+) */
   @media (min-width: 3840px) {
     .reader-container {
